@@ -80,7 +80,6 @@ Chatify is a complete chat solution that enables users to:
 ```
 lib/
 ├── main.dart                      # Application entry point
-├── firebase_options.dart          # Firebase configuration
 ├── local_env.dart                 # Local environment variables
 ├── models/
 │   └── chat_user.dart            # User data model
@@ -105,6 +104,8 @@ lib/
     ├── rounded_image.dart         # Reusable image container
     └── top_bar.dart               # App header/navigation bar
 ```
+
+> **Note**: `firebase_options.dart` is generated dynamically and not included in the repository for security reasons.
 
 ## 🚀 Getting Started
 
@@ -136,10 +137,20 @@ Before running this project, ensure you have installed:
 
 3. **Configure Firebase**
 
-   - Create a Firebase project in Firebase Console
-   - Generate `google-services.json` for Android
-   - Generate `GoogleService-Info.plist` for iOS
-   - Place these files in their respective platform directories
+   The project uses Firebase for backend services. You need to configure it locally:
+
+   ```bash
+   flutterfire configure
+   ```
+
+   This command will:
+
+   - Prompt you to select a Firebase project (or create a new one)
+   - Generate `firebase_options.dart` automatically
+   - Configure platform-specific settings for iOS and Android
+   - Update necessary configuration files
+
+   > **Important**: `firebase_options.dart` is added to `.gitignore` for security. Each developer must run `flutterfire configure` independently.
 
 4. **Install iOS Pods**
 
@@ -252,17 +263,19 @@ The project includes widget tests in the `test/` directory for UI testing.
 ### Environment Variables
 
 - `local_env.dart` contains local configuration settings
-- `firebase_options.dart` contains Firebase initialization parameters
+- `firebase_options.dart` is **auto-generated** by FlutterFire CLI (not committed to repository)
 - Environment-specific settings can be managed through local_env.dart
 
 ### Firebase Configuration
 
-Firebase is configured for:
+Firebase is configured via `flutterfire configure` command, which sets up:
 
 - Email/Password Authentication
 - Firestore Database for messages and user data
 - Cloud Storage for media files
 - App Check for security
+
+**First-time setup required**: Run `flutterfire configure` to generate `firebase_options.dart`
 
 ## 📦 Building and Deployment
 
