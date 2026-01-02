@@ -25,3 +25,33 @@ class RoundedImageNetwork extends StatelessWidget {
     );
   }
 }
+
+class RoundedImageNetworkWithStatusIndicator extends RoundedImageNetwork {
+  final bool isActive;
+
+  const RoundedImageNetworkWithStatusIndicator({
+    required Key super.key,
+    required super.imagePath,
+    required super.size,
+    required this.isActive,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.bottomRight,
+      children: [
+        super.build(context),
+        Container(
+          height: size * 0.2,
+          width: size * 0.2,
+          decoration: BoxDecoration(
+            color: isActive ? Colors.green : Colors.red,
+            borderRadius: BorderRadius.circular(size),
+          ),
+        ),
+      ],
+    );
+  }
+}
