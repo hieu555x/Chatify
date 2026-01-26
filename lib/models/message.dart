@@ -19,4 +19,13 @@ class Message {
       content = map['content'],
       createAt = DateTime.parse(map['created_at']),
       isMine = myUserID == map['profile_id'];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id':id,
+      'profile_id':profileID,
+      'content':content,
+      'created_at': createAt.toString(),
+    };
+  }
 }
