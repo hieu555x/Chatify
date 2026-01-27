@@ -13,8 +13,13 @@ class RoomsPage extends StatelessWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => BlocProvider<RoomCubit>(
-        create: (context) => RoomCubit()..initializeRooms(context),
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider<RoomCubit>(
+            create: (context) => RoomCubit()..initializeRooms(context),
+          ),
+          BlocProvider<ProfilesCubit>(create: (context) => ProfilesCubit()),
+        ],
         child: RoomsPage(),
       ),
     );

@@ -37,10 +37,11 @@ class RoomCubit extends Cubit<RoomState> {
           .from('profiles')
           .select()
           .not('id', 'eq', myUserID)
-          .order('create_at')
+          .order('created_at')
           .limit(12);
-    } catch (_) {
-      emit(RoomError('Error loading new users'));
+    } catch (e) {
+      emit(RoomError('Error loading new users ${e.toString()}'));
+      return;
     }
 
     final rows = List<Map<String, dynamic>>.from(data);
@@ -82,7 +83,7 @@ class RoomCubit extends Cubit<RoomState> {
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('room_id', roomID)
-        .order('create_at')
+        .order('created_at')
         .limit(1)
         .map<Message?>(
           (data) => data.isEmpty
