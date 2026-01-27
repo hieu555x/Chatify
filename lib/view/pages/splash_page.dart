@@ -1,6 +1,6 @@
 import 'package:chattify/constant.dart';
-import 'package:chattify/view/pages/chat_page.dart';
-import 'package:chattify/view/pages/login_page.dart';
+import 'package:chattify/view/pages/register_page.dart';
+import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatefulWidget {
@@ -13,26 +13,35 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
+    getInitialSession();
     super.initState();
-    redirect();
   }
 
-  Future<void> redirect() async {
+  Future<void> getInitialSession() async {
     await Future.delayed(Duration.zero);
-    final session = supabase.auth.currentSession;
-    if (session == null) {
+    try {
+      final session = supabase.auth.currentSession;
+      if (session == null) {
+        Navigator.of(
+          context,
+        ).pushAndRemoveUntil(RegisterPage.route(), (_) => false);
+      } else {
+        Navigator.of(
+          context,
+        ).pushAndRemoveUntil(RoomsPage.route(), (_) => false);
+      }
+    } catch (_) {
+      context.showErrorSnackBar(
+        message: 'Error occurred during session refresh',
+      );
       Navigator.of(
         context,
-      ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
-    } else {
-      Navigator.of(
-        context,
-      ).pushAndRemoveUntil(ChatPage.route(), (route) => false);
+      ).pushAndRemoveUntil(RegisterPage.route(), (_) => false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: preloader);
+    return Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

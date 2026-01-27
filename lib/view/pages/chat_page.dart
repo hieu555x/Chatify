@@ -1,8 +1,10 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/chat/chat_cubit.dart';
 import 'package:chattify/models/message.dart';
+import 'package:chattify/view/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:timeago/timeago.dart';
 
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
@@ -152,7 +154,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget buildUI(BuildContext context) {
     List<Widget> chatContents = [
-      if (!message.isMine) UserAvatar(userID: message.profileID), // Tới đây rồi
+      if (!message.isMine) UserAvatar(userID: message.profileID),
       SizedBox(width: 12),
       Flexible(
         child: Container(

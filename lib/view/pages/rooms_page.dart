@@ -1,10 +1,12 @@
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:timeago/timeago.dart';
 
 class RoomsPage extends StatelessWidget {
   const RoomsPage({super.key});
@@ -46,7 +48,7 @@ class RoomsPage extends StatelessWidget {
           } else if (state is RoomLoaded) {
             final newUsers = state.newUsers;
             final rooms = state.rooms;
-            return BlocBuilder<ProfilesCubit, ProfileState>(
+            return BlocBuilder<ProfilesCubit, ProfilesState>(
               builder: (context, state) {
                 if (state is ProfilesLoaded) {
                   final profiles = state.profiles;
@@ -67,12 +69,12 @@ class RoomsPage extends StatelessWidget {
                               leading: CircleAvatar(
                                 child: otherUser == null
                                     ? preloader
-                                    : Text(otherUser.username.substring(0, 2)),
+                                    : Text(otherUser.userName.substring(0, 2)),
                               ),
                               title: Text(
                                 otherUser == null
                                     ? "Loading ..."
-                                    : otherUser.username,
+                                    : otherUser.userName,
                               ),
                               subtitle: room.lastMessage != null
                                   ? Text(

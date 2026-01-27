@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:chattify/constant.dart';
-import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/login_page.dart';
-import 'package:chattify/view/widgets/custom_text_form_field.dart';
+import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,6 +29,54 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final usernameController = TextEditingController();
 
+  late final StreamSubscription<AuthState> authSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    bool haveNavigated = false;
+
+    authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      final session = data.session;
+      if (session != null && !haveNavigated) {
+        haveNavigated = true;
+        Navigator.of(context).pushReplacement(RoomsPage.route());
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    authSubscription.cancel();
+  }
+
+  Future<void> signUp() async {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    final email = emailController.text;
+    final password = passwordController.text;
+    final username = usernameController.text;
+    try {
+      await supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {'username': username},
+        emailRedirectTo: 'io.supabase.chat://login',
+      );
+      context.showErrorSnackBar(
+        message: 'Please check your inbox for confirmation email.',
+      );
+    } on AuthApiException catch (error) {
+      context.showErrorSnackBar(message: error.message);
+    } catch (error) {
+      debugPrint(error.toString());
+      context.showErrorSnackBar(message: unexpectedErrorMessage);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return buildUI();
@@ -35,86 +84,53 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget buildUI() {
     return Scaffold(
-      appBar: AppBar(title: Text("Register")),
+      appBar: AppBar(title: Text('Register')),
       body: Form(
         key: formKey,
         child: ListView(
           padding: formPadding,
           children: [
-            CustomTextFormField(
-              labelText: 'Email',
-              validator: (val) {
-                return val == null || val.isEmpty ? 'Required' : null;
-              },
+            TextFormField(
               controller: emailController,
-            ),
-            formSpacer,
-            CustomTextFormField(
-              labelText: 'Password',
-              controller: passwordController,
-              obscureText: true,
-              validator: (val) {
-                return val == null || val.isEmpty
-                    ? 'Required'
-                    : val.length < 6
-                    ? '6 characters minimum'
-                    : null;
-              },
-            ),
-            formSpacer,
-            CustomTextFormField(
-              labelText: "User name ",
-              controller: usernameController,
+              decoration: InputDecoration(label: Text('Email')),
               validator: (val) {
                 if (val == null || val.isEmpty) {
-                  return "Required";
+                  return 'Required';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.emailAddress,
+            ),
+            formSpacer,
+            TextFormField(
+              controller: usernameController,
+              decoration: InputDecoration(label: Text('Password')),
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
                 }
                 final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
-                return !isValid
-                    ? '3-24 long with alphanumeric or underscore'
-                    : null;
+                if (!isValid) {
+                  return '3-24 long with alphanumeric or underscore';
+                }
+                return null;
               },
             ),
             formSpacer,
             ElevatedButton(
               onPressed: isLoading ? null : signUp,
-              child: const Text('Register'),
+              child: Text('Register'),
             ),
             formSpacer,
             TextButton(
-              child: Text('I already have an account'),
               onPressed: () {
                 Navigator.of(context).push(LoginPage.route());
               },
+              child: Text('I already have an account'),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> signUp() async {
-    final isValid = formKey.currentState!.validate();
-
-    if (!isValid) return;
-
-    final String email = emailController.text;
-    final String password = passwordController.text;
-    final String username = usernameController.text;
-
-    try {
-      await supabase.auth.signUp(
-        email: email,
-        password: password,
-        data: {'username': username},
-      );
-      Navigator.of(
-        context,
-      ).pushAndRemoveUntil(ChatPage.route(), (route) => false);
-    } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
-    } catch (e) {
-      context.showErrorSnackBar(message: unexpectedErrorMessage);
-    }
   }
 }

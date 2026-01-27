@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/models/room.dart';
