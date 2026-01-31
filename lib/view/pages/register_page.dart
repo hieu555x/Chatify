@@ -104,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
             formSpacer,
             TextFormField(
               controller: usernameController,
-              decoration: InputDecoration(label: Text('Password')),
+              decoration: InputDecoration(label: Text('User name')),
               validator: (val) {
                 if (val == null || val.isEmpty) {
                   return 'Required';
@@ -112,6 +112,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
                 if (!isValid) {
                   return '3-24 long with alphanumeric or underscore';
+                }
+                return null;
+              },
+            ),
+            formSpacer,
+            TextFormField(
+              controller: passwordController,
+              decoration: InputDecoration(label: Text('Password')),
+              validator: (val){
+                if(val==null||val.isEmpty){
+                  return 'Required';
                 }
                 return null;
               },

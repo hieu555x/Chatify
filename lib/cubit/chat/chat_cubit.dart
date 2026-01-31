@@ -35,10 +35,12 @@ class ChatCubit extends Cubit<ChatState> {
         )
         .listen((messages) {
           message = messages;
-          if (message.isEmpty) {
-            emit(ChatEmpty());
-          } else {
-            emit(ChatLoaded(message));
+          if (!isClosed) {
+            if (message.isEmpty) {
+              emit(ChatEmpty());
+            } else {
+              emit(ChatLoaded(message));
+            }
           }
         });
   }
@@ -50,15 +52,26 @@ class ChatCubit extends Cubit<ChatState> {
       content: text,
       createAt: DateTime.now(),
       isMine: true,
+      roomID: roomID,
     );
     this.message.insert(0, message);
-    emit(ChatLoaded(this.message));
-    try {
-      await supabase.from('messages').insert(message.toMap());
-    } catch (_) {
-      emit(ChatError('Error submitting message.'));
-      this.message.removeWhere((message) => message.id == 'new');
+    if (!isClosed) {
       emit(ChatLoaded(this.message));
     }
+    try {
+      await supabase.from('messages').insert(message.toMap());
+    } catch (error) {
+      if (!isClosed) {
+        emit(ChatError('Error submitting message. ${error.toString()}'));
+        this.message.removeWhere((message) => message.id == 'new');
+        emit(ChatLoaded(this.message));
+      }
+    }
+  }
+
+  @override
+  Future<void> close() {
+    messagesSubscription?.cancel();
+    return super.close();
   }
 }

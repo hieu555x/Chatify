@@ -1,5 +1,5 @@
 import 'package:chattify/constant.dart';
-import 'package:chattify/view/pages/register_page.dart';
+import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,7 @@ class _SplashPageState extends State<SplashPage> {
       if (session == null) {
         Navigator.of(
           context,
-        ).pushAndRemoveUntil(RegisterPage.route(), (_) => false);
+        ).pushAndRemoveUntil(LoginPage.route(), (_) => false);
       } else {
         Navigator.of(
           context,
@@ -34,9 +34,7 @@ class _SplashPageState extends State<SplashPage> {
       context.showErrorSnackBar(
         message: 'Error occurred during session refresh',
       );
-      Navigator.of(
-        context,
-      ).pushAndRemoveUntil(RegisterPage.route(), (_) => false);
+      Navigator.of(context).pushAndRemoveUntil(LoginPage.route(), (_) => false);
     }
   }
 

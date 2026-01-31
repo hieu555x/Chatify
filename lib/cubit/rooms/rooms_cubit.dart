@@ -11,7 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'rooms_state.dart';
 
 class RoomCubit extends Cubit<RoomState> {
-  RoomCubit() : super(RoomLoading());
+  final ProfilesCubit profilesCubit;
+
+  RoomCubit({required this.profilesCubit}) : super(RoomLoading());
 
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
 
@@ -53,7 +55,9 @@ class RoomCubit extends Cubit<RoomState> {
         .listen(
           (participantsMaps) async {
             if (participantsMaps.isEmpty) {
-              emit(RoomEmpty(newUsers: newUsers));
+              if (!isClosed) {
+                emit(RoomEmpty(newUsers: newUsers));
+              }
               return;
             }
 
@@ -63,14 +67,16 @@ class RoomCubit extends Cubit<RoomState> {
                 .toList();
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
-              BlocProvider.of<ProfilesCubit>(
-                context,
-              ).getProfile(room.otherUserID);
+              profilesCubit.getProfile(room.otherUserID);
             }
-            emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
+            if (!isClosed) {
+              emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
+            }
           },
           onError: (error) {
-            emit(RoomError("Error loading rooms"));
+            if (!isClosed) {
+              emit(RoomError("Error loading rooms"));
+            }
           },
         );
   }
@@ -113,13 +119,19 @@ class RoomCubit extends Cubit<RoomState> {
       'create_new_room',
       params: {'other_user_id': otherUserID},
     );
-    emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
+    if (!isClosed) {
+      emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
+    }
     return data as String;
   }
 
   @override
   Future<void> close() {
     rawRoomsSubscription?.cancel();
+    for (final subscription in messageSubscriptions.values) {
+      subscription.cancel();
+    }
+    messageSubscriptions.clear();
     return super.close();
   }
 }

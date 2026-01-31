@@ -13,15 +13,20 @@ class RoomsPage extends StatelessWidget {
 
   static Route<void> route() {
     return MaterialPageRoute(
-      builder: (context) => MultiBlocProvider(
-        providers: [
-          BlocProvider<RoomCubit>(
-            create: (context) => RoomCubit()..initializeRooms(context),
-          ),
-          BlocProvider<ProfilesCubit>(create: (context) => ProfilesCubit()),
-        ],
-        child: RoomsPage(),
-      ),
+      builder: (context) {
+        final profilesCubit = ProfilesCubit();
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<ProfilesCubit>(create: (_) => profilesCubit),
+            BlocProvider<RoomCubit>(
+              create: (_) =>
+                  RoomCubit(profilesCubit: profilesCubit)
+                    ..initializeRooms(context),
+            ),
+          ],
+          child: const RoomsPage(),
+        );
+      },
     );
   }
 
@@ -53,57 +58,51 @@ class RoomsPage extends StatelessWidget {
           } else if (state is RoomLoaded) {
             final newUsers = state.newUsers;
             final rooms = state.rooms;
-            return BlocBuilder<ProfilesCubit, ProfilesState>(
-              builder: (context, state) {
-                if (state is ProfilesLoaded) {
-                  final profiles = state.profiles;
-                  return Column(
-                    children: [
-                      NewUsers(newUsers: newUsers),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: rooms.length,
-                          itemBuilder: (context, index) {
-                            final room = rooms[index];
-                            final otherUser = profiles[room.otherUserID];
+            final profilesCubit = context.read<ProfilesCubit>();
+            final profiles = profilesCubit.profiles;
 
-                            return ListTile(
-                              onTap: () => Navigator.of(
-                                context,
-                              ).push(ChatPage.route(room.id)),
-                              leading: CircleAvatar(
-                                child: otherUser == null
-                                    ? preloader
-                                    : Text(otherUser.userName.substring(0, 2)),
-                              ),
-                              title: Text(
-                                otherUser == null
-                                    ? "Loading ..."
-                                    : otherUser.userName,
-                              ),
-                              subtitle: room.lastMessage != null
-                                  ? Text(
-                                      room.lastMessage!.content,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    )
-                                  : Text('Room created'),
-                              trailing: Text(
-                                format(
-                                  room.lastMessage?.createAt ?? room.createdAt,
-                                  locale: 'en_short',
-                                ),
-                              ),
-                            );
-                          },
+            return Column(
+              children: [
+                NewUsers(newUsers: newUsers),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: rooms.length,
+                    itemBuilder: (context, index) {
+                      final room = rooms[index];
+                      final otherUser = profiles[room.otherUserID];
+
+                      return ListTile(
+                        onTap: () => Navigator.of(
+                          context,
+                        ).push(ChatPage.route(room.id, profilesCubit)),
+                        leading: CircleAvatar(
+                          child: otherUser == null
+                              ? preloader
+                              : Text(otherUser.userName.substring(0, 2)),
                         ),
-                      ),
-                    ],
-                  );
-                } else {
-                  return preloader;
-                }
-              },
+                        title: Text(
+                          otherUser == null
+                              ? "Loading ..."
+                              : otherUser.userName,
+                        ),
+                        subtitle: room.lastMessage != null
+                            ? Text(
+                                room.lastMessage!.content,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : Text('Room created'),
+                        trailing: Text(
+                          format(
+                            room.lastMessage?.createAt ?? room.createdAt,
+                            locale: 'en_short',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           } else if (state is RoomEmpty) {
             final newUsers = state.newUsers;
@@ -145,7 +144,12 @@ class NewUsers extends StatelessWidget {
                     final roomID = await BlocProvider.of<RoomCubit>(
                       context,
                     ).createRoom(user.id);
-                    Navigator.of(context).push(ChatPage.route(roomID));
+                    if (context.mounted) {
+                      final profilesCubit = context.read<ProfilesCubit>();
+                      Navigator.of(
+                        context,
+                      ).push(ChatPage.route(roomID, profilesCubit));
+                    }
                   } catch (_) {
                     context.showErrorSnackBar(
                       message: 'Failed creating a new room',

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserAvatar extends StatelessWidget {
   final String userID;
-  const UserAvatar({super.key, required this.userID});
+  const UserAvatar( {super.key, required this.userID});
 
   @override
   Widget build(BuildContext context) {

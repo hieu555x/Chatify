@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'profiles_state.dart';
 
 class ProfilesCubit extends Cubit<ProfilesState> {
-  ProfilesCubit() : super(ProfilesInitial());
+  ProfilesCubit() : super(ProfilesLoaded(profiles: {}));
 
   final Map<String, Profile?> profiles = {};
 
@@ -18,10 +18,6 @@ class ProfilesCubit extends Cubit<ProfilesState> {
     final data = await supabase.from('profiles').select().match({
       'id': userID,
     }).single();
-
-    if (data == null) {
-      return;
-    }
     profiles[userID] = Profile.fromMap(data);
     emit(ProfilesLoaded(profiles: profiles));
   }

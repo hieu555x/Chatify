@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:chattify/constant.dart';
+import 'package:chattify/view/pages/register_page.dart';
+import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,6 +22,21 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  late final StreamSubscription<AuthState> authSubscription;
+
+  @override
+  void initState() {
+    bool haveNavigated = false;
+    authSubscription = supabase.auth.onAuthStateChange.listen((data) {
+      final session = data.session;
+      if (session != null && !haveNavigated) {
+        haveNavigated = true;
+        Navigator.of(context).pushReplacement(RoomsPage.route());
+      }
+    });
+    super.initState();
+  }
+
   Future<void> signIn() async {
     setState(() {
       isLoading = true;
@@ -35,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (mounted) {
       setState(() {
-        isLoading = true;
+        isLoading = false;
       });
     }
   }
@@ -44,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    authSubscription.cancel();
     super.dispose();
   }
 
@@ -66,13 +86,21 @@ class _LoginPageState extends State<LoginPage> {
           formSpacer,
           TextFormField(
             controller: passwordController,
-            decoration: InputDecoration(
-              labelText: 'Password',
-            ),
+            decoration: InputDecoration(labelText: 'Password'),
             obscureText: true,
           ),
           formSpacer,
-          ElevatedButton(onPressed: isLoading?null:signIn, child: Text('Login'))
+          ElevatedButton(
+            onPressed: isLoading ? null : signIn,
+            child: Text('Login'),
+          ),
+          formSpacer,
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(RegisterPage.route());
+            },
+            child: Text('I am not have an account'),
+          ),
         ],
       ),
     );

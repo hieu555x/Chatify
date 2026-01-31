@@ -1,5 +1,6 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/chat/chat_cubit.dart';
+import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/view/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +10,16 @@ import 'package:timeago/timeago.dart';
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
 
-  static Route<void> route(String roomID) {
+  static Route<void> route(String roomID, ProfilesCubit profilesCubit) {
     return MaterialPageRoute(
-      builder: (context) => BlocProvider<ChatCubit>(
-        create: (context) => ChatCubit()..setMessageListener(roomID),
-        child: ChatPage(),
+      builder: (context) => MultiBlocProvider(
+        providers: [
+          BlocProvider<ProfilesCubit>.value(value: profilesCubit),
+          BlocProvider<ChatCubit>(
+            create: (context) => ChatCubit()..setMessageListener(roomID),
+          ),
+        ],
+        child: const ChatPage(),
       ),
     );
   }
@@ -25,7 +31,7 @@ class ChatPage extends StatelessWidget {
 
   Widget buildUI(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat')),
+      appBar: AppBar(title: Text("Chat")),
       body: BlocConsumer<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {

@@ -15,5 +15,5 @@ class Profile {
     : id = map['id'],
       userName = map['username'],
       createAt = DateTime.parse(map['created_at']),
-      profileImage = map['profile_image'];
+      profileImage = map['profile_image'].toString();
 }
