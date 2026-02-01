@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserAvatar extends StatelessWidget {
   final String userID;
-  const UserAvatar( {super.key, required this.userID});
+  const UserAvatar({super.key, required this.userID});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,9 @@ class UserAvatar extends StatelessWidget {
           return CircleAvatar(
             child: user == null
                 ? preloader
-                : Text(user.userName.substring(0, 2)),
+                : user.profileImage == "" || user.profileImage == "null"
+                ? Text(user.userName.substring(0, 2))
+                : Image.network(user.profileImage),
           );
         } else {
           return CircleAvatar(child: preloader);

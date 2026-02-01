@@ -78,7 +78,10 @@ class RoomsPage extends StatelessWidget {
                         leading: CircleAvatar(
                           child: otherUser == null
                               ? preloader
-                              : Text(otherUser.userName.substring(0, 2)),
+                              : otherUser.profileImage == "" ||
+                                    otherUser.profileImage == "null"
+                              ? Text(otherUser.userName.substring(0, 2))
+                              : Image.network(otherUser.profileImage),
                         ),
                         title: Text(
                           otherUser == null
@@ -163,7 +166,11 @@ class NewUsers extends StatelessWidget {
                     child: Column(
                       children: [
                         CircleAvatar(
-                          child: Text(user.userName.substring(0, 2)),
+                          child:
+                              user.profileImage == "" ||
+                                  user.profileImage == "null"
+                              ? Text(user.userName.substring(0, 2))
+                              : Image.network(user.profileImage),
                         ),
                         SizedBox(height: 8),
                         Text(
