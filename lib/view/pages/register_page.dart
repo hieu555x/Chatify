@@ -40,7 +40,9 @@ class _RegisterPageState extends State<RegisterPage> {
       final session = data.session;
       if (session != null && !haveNavigated) {
         haveNavigated = true;
-        Navigator.of(context).pushReplacement(RoomsPage.route());
+        Navigator.of(
+          context,
+        ).pushAndRemoveUntil(RoomsPage.route(), (route) => false);
       }
     });
   }
@@ -120,8 +122,9 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: passwordController,
               decoration: InputDecoration(label: Text('Password')),
-              validator: (val){
-                if(val==null||val.isEmpty){
+              obscureText: true,
+              validator: (val) {
+                if (val == null || val.isEmpty) {
                   return 'Required';
                 }
                 return null;
