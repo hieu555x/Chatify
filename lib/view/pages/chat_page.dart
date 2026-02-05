@@ -31,7 +31,7 @@ class ChatPage extends StatelessWidget {
 
   Widget buildUI(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chat")),
+      appBar: AppBar(title: Text("Chat"), centerTitle: true),
       body: BlocConsumer<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {

@@ -42,10 +42,14 @@ class _LoginPageState extends State<LoginPage> {
       isLoading = true;
     });
     try {
-      await supabase.auth.signInWithPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+      if (emailController.text == "" || passwordController.text == "") {
+        throw Exception();
+      } else {
+        await supabase.auth.signInWithPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+      }
     } on AuthException catch (error) {
       context.showErrorSnackBar(message: error.message);
     } catch (_) {

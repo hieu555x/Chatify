@@ -4,6 +4,7 @@ import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/login_page.dart';
+import 'package:chattify/view/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
@@ -40,15 +41,19 @@ class RoomsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Rooms'),
         actions: [
-          TextButton(
-            onPressed: () async {
-              await supabase.auth.signOut();
-              Navigator.of(
-                context,
-              ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
-            },
-            child: Text('Logout'),
+          IconButton(
+            onPressed: () => Navigator.of(context).push(ProfilePage.route()),
+            icon: Icon(Icons.settings),
           ),
+          // TextButton(
+          //   onPressed: () async {
+          //     await supabase.auth.signOut();
+          //     Navigator.of(
+          //       context,
+          //     ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+          //   },
+          //   child: Text('Logout'),
+          // ),
         ],
       ),
       body: BlocBuilder<RoomCubit, RoomState>(
