@@ -1,5 +1,8 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
+import 'package:chattify/view/pages/login_page.dart';
+import 'package:chattify/view/widgets/adaptive_dialog.dart';
+import 'package:chattify/view/widgets/info_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -47,21 +50,38 @@ class _ProfilePageState extends State<ProfilePage> {
           final currentProfile = state.profiles[currentUserId];
 
           return Scaffold(
-            appBar: AppBar(title: Text(currentProfile?.userName ?? '')),
+            appBar: AppBar(title: Text('Profile')),
             body: Center(
               child: currentProfile == null
                   ? preloader
                   : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          child: Text(
-                            currentProfile.userName
-                                .substring(0, 2)
-                                .toUpperCase(),
-                            style: TextStyle(fontSize: 32),
-                          ),
+                        formSpacer,
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              child: Text(
+                                currentProfile.userName
+                                    .substring(0, 2)
+                                    .toUpperCase(),
+                                style: TextStyle(fontSize: 32),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundColor: Colors.blue,
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 20),
                         Text(
@@ -71,8 +91,118 @@ class _ProfilePageState extends State<ProfilePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        formSpacer,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    16,
+                                  ),
+                                ),
+                                elevation: 6,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsetsGeometry.all(16),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          "Information",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Divider(height: 1),
+                                    InfoCard(
+                                      icon: Icons.person,
+                                      label: "User Name",
+                                      value: currentProfile.userName,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              formSpacer,
+                              Card(
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    16,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsetsGeometry.all(16),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          "Account setting",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Divider(height: 1),
+                                    InfoCard(
+                                      icon: Icons.key,
+                                      label: "Change your password",
+                                      value: "",
+                                    ),
+                                    InfoCard(
+                                      icon: Icons.person,
+                                      label: "Change your user name",
+                                      value: "",
+                                      onTap: () async {
+                                        final result =
+                                            await showAdaptiveInputDialog(
+                                              context,
+                                              "Change your user name",
+                                              "Input your new user name here",
+                                            );
+                                        String? result2 = "";
+                                        if (result != null ||
+                                            result!.isNotEmpty) {
+                                          result2 =
+                                              await showAdaptiveInputDialog(
+                                                context,
+                                                "Change your user name",
+                                                "Input your new user name here",
+                                              );
+                                        }
+                                        print(
+                                          result2 == ""
+                                              ? result
+                                              : result == result2,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () async {
+                  await supabase.auth.signOut();
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+                },
+                child: Text("Log out"),
+              ),
             ),
           );
         }

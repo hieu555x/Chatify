@@ -39,6 +39,7 @@ dependencies:
   toastification: ^3.0.3
   flutter_bloc: ^9.1.1
   timeago: ^3.7.1
+  simple_icons: ^14.6.1
 
 dev_dependencies:
   flutter_test:

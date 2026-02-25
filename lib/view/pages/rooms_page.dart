@@ -3,7 +3,6 @@ import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/view/pages/chat_page.dart';
-import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
