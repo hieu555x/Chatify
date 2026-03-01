@@ -3,6 +3,7 @@ import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/widgets/adaptive_dialog.dart';
 import 'package:chattify/view/widgets/info_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -159,27 +160,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                       label: "Change your user name",
                                       value: "",
                                       onTap: () async {
-                                        final result =
-                                            await showAdaptiveInputDialog(
+                                        final newUserName = await
+                                            showAdaptiveInputDialog(
                                               context,
-                                              "Change your user name",
-                                              "Input your new user name here",
+                                              "Input your new user name ",
+                                              "Input your new user name",
                                             );
-                                        String? result2 = "";
-                                        if (result != null ||
-                                            result!.isNotEmpty) {
-                                          result2 =
-                                              await showAdaptiveInputDialog(
-                                                context,
-                                                "Change your user name",
-                                                "Input your new user name here",
-                                              );
-                                        }
-                                        print(
-                                          result2 == ""
-                                              ? result
-                                              : result == result2,
-                                        );
+                                        newUserName == ""
+                                            ? print("null")
+                                            : print(newUserName);
                                       },
                                     ),
                                   ],
@@ -196,10 +185,10 @@ class _ProfilePageState extends State<ProfilePage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () async {
-                  await supabase.auth.signOut();
-                  Navigator.of(
-                    context,
-                  ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+                  showDialog(
+                    context: context,
+                    builder: (context) => LogoutDialog(),
+                  );
                 },
                 child: Text("Log out"),
               ),
@@ -212,5 +201,46 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
+  }
+
+  Widget LogoutDialog() {
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.android
+        ? AlertDialog(
+            title: Text("Do you want to logout"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await supabase.auth.signOut();
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+                },
+                child: Text("Confirm"),
+              ),
+            ],
+          )
+        : CupertinoAlertDialog(
+            title: Text("Do you want to logout"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await supabase.auth.signOut();
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+                },
+                child: Text("Confirm"),
+              ),
+            ],
+          );
   }
 }
