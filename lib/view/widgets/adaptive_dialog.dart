@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 Future<String?> showAdaptiveInputDialog(
   BuildContext context,
   String title,
-  String placeholder,
-) async {
+  String placeholder, {
+  bool isPassword = false,
+}) async {
   final controller = TextEditingController();
   if (Theme.of(context).platform == TargetPlatform.iOS) {
     return showCupertinoDialog(
@@ -18,6 +19,7 @@ Future<String?> showAdaptiveInputDialog(
             CupertinoTextField(
               controller: controller,
               placeholder: placeholder,
+              obscureText: isPassword,
             ),
           ],
         ),
@@ -43,6 +45,7 @@ Future<String?> showAdaptiveInputDialog(
         content: TextField(
           controller: controller,
           decoration: InputDecoration(hintText: placeholder),
+          obscureText: isPassword,
         ),
         actions: [
           TextButton(

@@ -11,14 +11,14 @@ class ProfilesCubit extends Cubit<ProfilesState> {
   final Map<String, Profile?> profiles = {};
 
   Future<void> getProfile(String userID) async {
-    if (profiles[userID] != null) {
-      return;
-    }
-
     final data = await supabase.from('profiles').select().match({
       'id': userID,
     }).single();
     profiles[userID] = Profile.fromMap(data);
     emit(ProfilesLoaded(profiles: profiles));
+  }
+
+  void clearProfile(String userID) {
+    profiles.remove(userID);
   }
 }

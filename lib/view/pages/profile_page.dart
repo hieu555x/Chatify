@@ -6,6 +6,7 @@ import 'package:chattify/view/widgets/info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -73,12 +74,18 @@ class _ProfilePageState extends State<ProfilePage> {
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: CircleAvatar(
-                                radius: 16,
-                                backgroundColor: Colors.blue,
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  print("Click on the camera");
+                                  
+                                },
+                                child: CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: Colors.blue,
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -154,21 +161,72 @@ class _ProfilePageState extends State<ProfilePage> {
                                       icon: Icons.key,
                                       label: "Change your password",
                                       value: "",
+                                      onTap: () async {
+                                        final oldPassword =
+                                            await showAdaptiveInputDialog(
+                                              context,
+                                              "Enter your current password",
+                                              "Enter your current password",
+                                              isPassword: true,
+                                            );
+
+                                        if (oldPassword == null ||
+                                            oldPassword.isEmpty) {
+                                          return;
+                                        }
+
+                                        final newPassword =
+                                            await showAdaptiveInputDialog(
+                                              context,
+                                              "Enter your new password",
+                                              "Enter your new password",
+                                              isPassword: true,
+                                            );
+
+                                        if (newPassword == null ||
+                                            newPassword.isEmpty) {
+                                          context.showErrorSnackBar(
+                                            message:
+                                                'Vui lòng nhập password mới',
+                                          );
+                                          return;
+                                        }
+
+                                        await updatePassword(
+                                          oldPassword,
+                                          newPassword,
+                                        );
+                                      },
                                     ),
                                     InfoCard(
                                       icon: Icons.person,
                                       label: "Change your user name",
                                       value: "",
                                       onTap: () async {
-                                        final newUserName = await
-                                            showAdaptiveInputDialog(
+                                        final newUserName =
+                                            await showAdaptiveInputDialog(
                                               context,
-                                              "Input your new user name ",
+                                              "Input your new user name",
                                               "Input your new user name",
                                             );
-                                        newUserName == ""
-                                            ? print("null")
-                                            : print(newUserName);
+
+                                        print('User input: $newUserName');
+                                        print(
+                                          'Current profile ID: ${currentProfile.id}',
+                                        );
+
+                                        if (newUserName != null &&
+                                            newUserName.trim().isNotEmpty) {
+                                          await updateUserName(
+                                            currentProfile.id,
+                                            newUserName.trim(),
+                                          );
+                                        } else {
+                                          context.showErrorSnackBar(
+                                            message:
+                                                'Please enter a valid user name',
+                                          );
+                                        }
                                       },
                                     ),
                                   ],
@@ -201,6 +259,55 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
+  }
+
+  Future<void> updateUserName(String id, String newUserName) async {
+    try {
+      await supabase
+          .from('profiles')
+          .update({'username': newUserName})
+          .eq('id', id);
+
+      final session = supabase.auth.currentUser;
+      if (session != null) {
+        context.read<ProfilesCubit>().clearProfile(session.id);
+        await context.read<ProfilesCubit>().getProfile(session.id);
+      }
+
+      context.showSnackBar(message: 'Cập nhật tên người dùng thành công');
+    } catch (e) {
+      print('Update error: $e');
+      context.showErrorSnackBar(message: 'Lỗi cập nhật: $e');
+    }
+  }
+
+  Future<void> updatePassword(String oldPassword, String newPassword) async {
+    try {
+      // Verify old password by trying to sign in
+      final email = supabase.auth.currentUser?.email;
+      if (email == null) {
+        context.showErrorSnackBar(message: 'Không tìm thấy email');
+        return;
+      }
+
+      // Sign in với password cũ để verify
+      await supabase.auth.signInWithPassword(
+        email: email,
+        password: oldPassword,
+      );
+
+      // Update password mới
+      await supabase.auth.updateUser(UserAttributes(password: newPassword));
+
+      context.showSnackBar(message: 'Cập nhật mật khẩu thành công');
+    } catch (e) {
+      print('Password update error: $e');
+      if (e.toString().contains('Invalid login credentials')) {
+        context.showErrorSnackBar(message: 'Mật khẩu cũ không đúng');
+      } else {
+        context.showErrorSnackBar(message: 'Lỗi cập nhật mật khẩu: $e');
+      }
+    }
   }
 
   Widget LogoutDialog() {
