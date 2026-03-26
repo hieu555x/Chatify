@@ -12,33 +12,33 @@ const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 const unexpectedErrorMessage = "Unexpected error occurred";
 
 final appTheme = ThemeData.light().copyWith(
-  primaryColorDark: Colors.orange,
+  primaryColorDark: Colors.blueAccent,
   appBarTheme: AppBarTheme(
     elevation: 1,
     backgroundColor: Colors.white,
     iconTheme: IconThemeData(color: Colors.black),
     titleTextStyle: TextStyle(color: Colors.black, fontSize: 18),
   ),
-  primaryColor: Colors.orange,
+  primaryColor: Colors.blueAccent,
   textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(foregroundColor: Colors.orange),
+    style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: Colors.white,
-      backgroundColor: Colors.orange,
+      backgroundColor: Colors.blueAccent,
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
-    floatingLabelStyle: TextStyle(color: Colors.orange),
+    floatingLabelStyle: TextStyle(color: Colors.blueAccent),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(color: Colors.grey, width: 2),
     ),
-    focusColor: Colors.orange,
+    focusColor: Colors.blueAccent,
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.orange, width: 2),
+      borderSide: BorderSide(color: Colors.blueAccent, width: 2),
     ),
   ),
 );
@@ -46,7 +46,7 @@ final appTheme = ThemeData.light().copyWith(
 extension ShowSnackBar on BuildContext {
   void showSnackBar({
     required String message,
-    Color backgroundColor = Colors.white,
+    Color backgroundColor = Colors.green,
   }) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: backgroundColor),

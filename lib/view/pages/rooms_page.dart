@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
 
-class RoomsPage extends StatelessWidget {
+class RoomsPage extends StatefulWidget {
   const RoomsPage({super.key});
 
   static Route<void> route() {
@@ -31,6 +31,21 @@ class RoomsPage extends StatelessWidget {
   }
 
   @override
+  State<RoomsPage> createState() => _RoomsPageState();
+}
+
+class _RoomsPageState extends State<RoomsPage> {
+  final TextEditingController searchController = TextEditingController();
+  String searchQuery = "";
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return buildUI(context);
   }
@@ -38,157 +53,329 @@ class RoomsPage extends StatelessWidget {
   Widget buildUI(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rooms'),
+        title: Text("Chatify"),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(ProfilePage.route()),
             icon: Icon(Icons.settings),
           ),
-          // TextButton(
-          //   onPressed: () async {
-          //     await supabase.auth.signOut();
-          //     Navigator.of(
-          //       context,
-          //     ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
-          //   },
-          //   child: Text('Logout'),
-          // ),
         ],
       ),
       body: BlocBuilder<RoomCubit, RoomState>(
         builder: (context, state) {
-          if (state is RoomLoading) {
-            return preloader;
-          } else if (state is RoomLoaded) {
-            final newUsers = state.newUsers;
-            final rooms = state.rooms;
-            final profilesCubit = context.read<ProfilesCubit>();
-            final profiles = profilesCubit.profiles;
+          if (state is RoomLoading) preloader;
 
-            return Column(
-              children: [
-                NewUsers(newUsers: newUsers),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: rooms.length,
-                    itemBuilder: (context, index) {
-                      final room = rooms[index];
-                      final otherUser = profiles[room.otherUserID];
+          List<Profile> allUsers = [];
+          if (state is RoomLoaded) allUsers = state.newUsers;
+          if (state is RoomEmpty) allUsers = state.newUsers;
 
-                      return ListTile(
-                        onTap: () => Navigator.of(
-                          context,
-                        ).push(ChatPage.route(room.id, profilesCubit)),
-                        leading: CircleAvatar(
-                          child: otherUser == null
-                              ? preloader
-                              : otherUser.profileImage == "" ||
-                                    otherUser.profileImage == "null"
-                              ? Text(otherUser.userName.substring(0, 2))
-                              : Image.network(otherUser.profileImage),
-                        ),
-                        title: Text(
-                          otherUser == null
-                              ? "Loading ..."
-                              : otherUser.userName,
-                        ),
-                        subtitle: room.lastMessage != null
-                            ? Text(
-                                room.lastMessage!.content,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            : Text('Room created'),
-                        trailing: Text(
-                          format(
-                            room.lastMessage?.createAt ?? room.createdAt,
-                            locale: 'en_short',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+          final filteredUsers = allUsers.where((user) {
+            return user.userName.toLowerCase().contains(
+              searchQuery.toLowerCase(),
             );
-          } else if (state is RoomEmpty) {
-            final newUsers = state.newUsers;
-            return Column(
-              children: [
-                NewUsers(newUsers: newUsers),
-                Expanded(
-                  child: Center(
-                    child: Text('Start a chat by tapping on available users'),
-                  ),
-                ),
-              ],
-            );
-          } else if (state is RoomError) {
-            return Center(child: Text(state.message));
-          }
-          throw UnimplementedError();
-        },
-      ),
-    );
-  }
-}
+          }).toList();
 
-class NewUsers extends StatelessWidget {
-  final List<Profile> newUsers;
-  const NewUsers({super.key, required this.newUsers});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: newUsers
-            .map<Widget>(
-              (user) => InkWell(
-                onTap: () async {
-                  try {
-                    final roomID = await BlocProvider.of<RoomCubit>(
-                      context,
-                    ).createRoom(user.id);
-                    if (context.mounted) {
-                      final profilesCubit = context.read<ProfilesCubit>();
-                      Navigator.of(
-                        context,
-                      ).push(ChatPage.route(roomID, profilesCubit));
-                    }
-                  } catch (_) {
-                    context.showErrorSnackBar(
-                      message: 'Failed creating a new room',
-                    );
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsetsGeometry.all(8),
-                  child: SizedBox(
-                    width: 60,
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          child:
-                              user.profileImage == "" ||
-                                  user.profileImage == "null"
-                              ? Text(user.userName.substring(0, 2))
-                              : Image.network(user.profileImage),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          user.userName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsetsGeometry.all(16),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) => setState(() => searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: "Search user ...",
+                    prefixIcon: Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    suffixIcon: searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              searchController.clear();
+                              setState(() => searchQuery = "");
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
               ),
+              if (searchQuery.isNotEmpty) SearchResults(users: filteredUsers),
+              if (searchQuery.isEmpty)
+                Expanded(
+                  child: state is RoomEmpty
+                      ? Center(
+                          child: Text("Search for someone to start chatting!"),
+                        )
+                      : buildRoomList(context, state),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildRoomList(BuildContext context, RoomState state) {
+    if (state is! RoomLoaded) return SizedBox();
+
+    final rooms = state.rooms;
+    final profilesCubit = context.read<ProfilesCubit>();
+    final profiles = profilesCubit.profiles;
+
+    return ListView.builder(
+      itemCount: rooms.length,
+      itemBuilder: (context, index) {
+        final room = rooms[index];
+        final otherUser = profiles[room.otherUserID];
+
+        return ListTile(
+          onTap: () => Navigator.of(
+            context,
+          ).push(ChatPage.route(room.id, profilesCubit)),
+          leading: _ProfileAvatar(user: otherUser),
+          title: Text(
+            otherUser?.userName ?? "Loading ..",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            format(
+              room.lastMessage?.createAt ?? room.createdAt,
+              locale: 'en_short',
+            ),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        );
+      },
+    );
+  }
+
+  // Widget buildUI(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: const Text('Rooms'),
+  //       actions: [
+  //         IconButton(
+  //           onPressed: () => Navigator.of(context).push(ProfilePage.route()),
+  //           icon: const Icon(Icons.settings),
+  //         ),
+  //       ],
+  //     ),
+  //     body: BlocBuilder<RoomCubit, RoomState>(
+  //       builder: (context, state) {
+  //         if (state is RoomLoading) {
+  //           return preloader;
+  //         } else if (state is RoomLoaded) {
+  //           final newUsers = state.newUsers;
+  //           final rooms = state.rooms;
+  //           final profilesCubit = context.read<ProfilesCubit>();
+  //           final profiles = profilesCubit.profiles;
+  //
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               if (newUsers.isNotEmpty) NewUsers(newUsers: newUsers),
+  //               Expanded(
+  //                 child: ListView.builder(
+  //                   itemCount: rooms.length,
+  //                   itemBuilder: (context, index) {
+  //                     final room = rooms[index];
+  //                     final otherUser = profiles[room.otherUserID];
+  //
+  //                     return ListTile(
+  //                       onTap: () => Navigator.of(
+  //                         context,
+  //                       ).push(ChatPage.route(room.id, profilesCubit)),
+  //                       leading: _ProfileAvatar(user: otherUser),
+  //                       title: Text(
+  //                         otherUser?.userName ?? "Loading ...",
+  //                         style: const TextStyle(fontWeight: FontWeight.bold),
+  //                       ),
+  //                       subtitle: room.lastMessage != null
+  //                           ? Text(
+  //                               room.lastMessage!.content,
+  //                               maxLines: 1,
+  //                               overflow: TextOverflow.ellipsis,
+  //                             )
+  //                           : const Text('Room created'),
+  //                       trailing: Text(
+  //                         format(
+  //                           room.lastMessage?.createAt ?? room.createdAt,
+  //                           locale: 'en_short',
+  //                         ),
+  //                         style: Theme.of(context).textTheme.bodySmall,
+  //                       ),
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         } else if (state is RoomEmpty) {
+  //           final newUsers = state.newUsers;
+  //           return Column(
+  //             children: [
+  //               if (newUsers.isNotEmpty) NewUsers(newUsers: newUsers),
+  //               const Expanded(
+  //                 child: Center(
+  //                   child: Text('Start a chat by tapping on available users'),
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         } else if (state is RoomError) {
+  //           return Center(child: Text(state.message));
+  //         }
+  //         throw UnimplementedError();
+  //       },
+  //     ),
+  //   );
+  // }
+}
+//
+// class NewUsers extends StatelessWidget {
+//   final List<Profile> newUsers;
+//   const NewUsers({super.key, required this.newUsers});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         SingleChildScrollView(
+//           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+//           scrollDirection: Axis.horizontal,
+//           child: Row(
+//             children: newUsers
+//                 .map<Widget>(
+//                   (user) => InkWell(
+//                     borderRadius: BorderRadius.circular(12),
+//                     onTap: () async {
+//                       try {
+//                         final roomID = await context.read<RoomCubit>().createRoom(user.id);
+//                         if (context.mounted) {
+//                           final profilesCubit = context.read<ProfilesCubit>();
+//                           Navigator.of(
+//                             context,
+//                           ).push(ChatPage.route(roomID, profilesCubit));
+//                         }
+//                       } catch (_) {
+//                         if (context.mounted) {
+//                           context.showErrorSnackBar(
+//                             message: 'Failed creating a new room',
+//                           );
+//                         }
+//                       }
+//                     },
+//                     child: Padding(
+//                       padding: const EdgeInsets.all(8),
+//                       child: SizedBox(
+//                         width: 65,
+//                         child: Column(
+//                           children: [
+//                             _ProfileAvatar(user: user, radius: 28),
+//                             const SizedBox(height: 8),
+//                             Text(
+//                               user.userName,
+//                               maxLines: 1,
+//                               textAlign: TextAlign.center,
+//                               overflow: TextOverflow.ellipsis,
+//                               style: const TextStyle(fontSize: 12),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 )
+//                 .toList(),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+class _ProfileAvatar extends StatelessWidget {
+  final Profile? user;
+  final double radius;
+
+  const _ProfileAvatar({this.user, this.radius = 24});
+
+  @override
+  Widget build(BuildContext context) {
+    if (user == null) {
+      return CircleAvatar(radius: radius, child: preloader);
+    }
+
+    final hasImage =
+        user!.profileImage.isNotEmpty && user!.profileImage != "null";
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      backgroundImage: hasImage ? NetworkImage(user!.profileImage) : null,
+      onBackgroundImageError: hasImage
+          ? (exception, stackTrace) => debugPrint("Avatar error: $exception")
+          : null,
+      child: !hasImage
+          ? Text(
+              user!.userName.substring(0, 1).toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: radius * 0.8,
+              ),
             )
-            .toList(),
+          : null,
+    );
+  }
+}
+
+class SearchResults extends StatelessWidget {
+  final List<Profile> users;
+
+  const SearchResults({super.key, required this.users});
+
+  @override
+  Widget build(BuildContext context) {
+    if (users.isEmpty) {
+      return Padding(
+        padding: EdgeInsetsGeometry.all(16),
+        child: Text("No users found"),
+      );
+    }
+    return Expanded(
+      child: ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index];
+          return ListTile(
+            leading: _ProfileAvatar(user: user, radius: 20),
+            title: Text(user.userName),
+            onTap: () async {
+              try {
+                final roomID = await context.read<RoomCubit>().createRoom(
+                  user.id,
+                );
+                if (context.mounted) {
+                  final profilesCubit = context.read<ProfilesCubit>();
+                  Navigator.of(
+                    context,
+                  ).push(ChatPage.route(roomID, profilesCubit));
+                }
+              } catch (_) {
+                if (context.mounted) {
+                  context.showErrorSnackBar(
+                    message: "Failed creating a new room",
+                  );
+                }
+              }
+            },
+          );
+        },
       ),
     );
   }
