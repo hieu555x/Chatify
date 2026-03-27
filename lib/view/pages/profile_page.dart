@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 
+import '../../cubit/theme/theme_cubit.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -56,7 +58,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
           return Scaffold(
             resizeToAvoidBottomInset: true,
-            appBar: AppBar(title: Text('Profile')),
+            appBar: AppBar(
+              title: Text('Profile'),
+              actions: [
+                BlocBuilder<ThemeCubit, ThemeMode>(
+                  builder: (context, mode) {
+                    return IconButton(
+                      onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+                      icon: Icon(
+                        mode == ThemeMode.light
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
             body: currentProfile == null
                 ? Center(child: preloader)
                 : SingleChildScrollView(

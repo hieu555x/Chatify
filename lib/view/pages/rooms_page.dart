@@ -86,7 +86,9 @@ class _RoomsPageState extends State<RoomsPage> {
                     hintText: "Search user ...",
                     prefixIcon: Icon(Icons.search),
                     filled: true,
-                    fillColor: Colors.grey[200],
+                    fillColor: Theme.of(context).brightness == Brightness.light
+                        ? Colors.grey[200]
+                        : Colors.grey[800],
                     suffixIcon: searchQuery.isNotEmpty
                         ? IconButton(
                             icon: Icon(Icons.close),
@@ -152,152 +154,7 @@ class _RoomsPageState extends State<RoomsPage> {
       },
     );
   }
-
-  // Widget buildUI(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text('Rooms'),
-  //       actions: [
-  //         IconButton(
-  //           onPressed: () => Navigator.of(context).push(ProfilePage.route()),
-  //           icon: const Icon(Icons.settings),
-  //         ),
-  //       ],
-  //     ),
-  //     body: BlocBuilder<RoomCubit, RoomState>(
-  //       builder: (context, state) {
-  //         if (state is RoomLoading) {
-  //           return preloader;
-  //         } else if (state is RoomLoaded) {
-  //           final newUsers = state.newUsers;
-  //           final rooms = state.rooms;
-  //           final profilesCubit = context.read<ProfilesCubit>();
-  //           final profiles = profilesCubit.profiles;
-  //
-  //           return Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               if (newUsers.isNotEmpty) NewUsers(newUsers: newUsers),
-  //               Expanded(
-  //                 child: ListView.builder(
-  //                   itemCount: rooms.length,
-  //                   itemBuilder: (context, index) {
-  //                     final room = rooms[index];
-  //                     final otherUser = profiles[room.otherUserID];
-  //
-  //                     return ListTile(
-  //                       onTap: () => Navigator.of(
-  //                         context,
-  //                       ).push(ChatPage.route(room.id, profilesCubit)),
-  //                       leading: _ProfileAvatar(user: otherUser),
-  //                       title: Text(
-  //                         otherUser?.userName ?? "Loading ...",
-  //                         style: const TextStyle(fontWeight: FontWeight.bold),
-  //                       ),
-  //                       subtitle: room.lastMessage != null
-  //                           ? Text(
-  //                               room.lastMessage!.content,
-  //                               maxLines: 1,
-  //                               overflow: TextOverflow.ellipsis,
-  //                             )
-  //                           : const Text('Room created'),
-  //                       trailing: Text(
-  //                         format(
-  //                           room.lastMessage?.createAt ?? room.createdAt,
-  //                           locale: 'en_short',
-  //                         ),
-  //                         style: Theme.of(context).textTheme.bodySmall,
-  //                       ),
-  //                     );
-  //                   },
-  //                 ),
-  //               ),
-  //             ],
-  //           );
-  //         } else if (state is RoomEmpty) {
-  //           final newUsers = state.newUsers;
-  //           return Column(
-  //             children: [
-  //               if (newUsers.isNotEmpty) NewUsers(newUsers: newUsers),
-  //               const Expanded(
-  //                 child: Center(
-  //                   child: Text('Start a chat by tapping on available users'),
-  //                 ),
-  //               ),
-  //             ],
-  //           );
-  //         } else if (state is RoomError) {
-  //           return Center(child: Text(state.message));
-  //         }
-  //         throw UnimplementedError();
-  //       },
-  //     ),
-  //   );
-  // }
 }
-//
-// class NewUsers extends StatelessWidget {
-//   final List<Profile> newUsers;
-//   const NewUsers({super.key, required this.newUsers});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         SingleChildScrollView(
-//           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-//           scrollDirection: Axis.horizontal,
-//           child: Row(
-//             children: newUsers
-//                 .map<Widget>(
-//                   (user) => InkWell(
-//                     borderRadius: BorderRadius.circular(12),
-//                     onTap: () async {
-//                       try {
-//                         final roomID = await context.read<RoomCubit>().createRoom(user.id);
-//                         if (context.mounted) {
-//                           final profilesCubit = context.read<ProfilesCubit>();
-//                           Navigator.of(
-//                             context,
-//                           ).push(ChatPage.route(roomID, profilesCubit));
-//                         }
-//                       } catch (_) {
-//                         if (context.mounted) {
-//                           context.showErrorSnackBar(
-//                             message: 'Failed creating a new room',
-//                           );
-//                         }
-//                       }
-//                     },
-//                     child: Padding(
-//                       padding: const EdgeInsets.all(8),
-//                       child: SizedBox(
-//                         width: 65,
-//                         child: Column(
-//                           children: [
-//                             _ProfileAvatar(user: user, radius: 28),
-//                             const SizedBox(height: 8),
-//                             Text(
-//                               user.userName,
-//                               maxLines: 1,
-//                               textAlign: TextAlign.center,
-//                               overflow: TextOverflow.ellipsis,
-//                               style: const TextStyle(fontSize: 12),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 )
-//                 .toList(),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class _ProfileAvatar extends StatelessWidget {
   final Profile? user;

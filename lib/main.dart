@@ -1,7 +1,9 @@
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/theme/theme_cubit.dart';
 import 'package:chattify/env.dart';
 import 'package:chattify/view/pages/splash_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -15,18 +17,31 @@ Future<void> main() async {
     ),
   );
 
-  runApp(const MyApp());
+  runApp(BlocProvider(create: (context) => ThemeCubit(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: appTheme,
-      home: SplashPage(),
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return MaterialApp(
+          title: 'Chatify',
+          debugShowCheckedModeBanner: false,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: themeMode,
+          home: SplashPage(),
+        );
+      },
     );
+    //   MaterialApp(
+    //   debugShowCheckedModeBanner: false,
+    //   title: 'Flutter Demo',
+    //   theme: appTheme,
+    //   home: SplashPage(),
+    // );
   }
 }

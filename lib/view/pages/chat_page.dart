@@ -108,31 +108,37 @@ class _MessageBarState extends State<MessageBar> {
   Widget buildUI(BuildContext context) {
     return Material(
       color: Theme.of(context).cardColor,
-      child: Padding(
-        padding: EdgeInsetsGeometry.only(
-          top: 8,
-          left: 8,
-          right: 8,
-          bottom: MediaQuery.of(context).padding.bottom,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                keyboardType: TextInputType.text,
-                maxLines: null,
-                autofocus: true,
-                controller: textController,
-                decoration: InputDecoration(
-                  hintText: 'Type a message',
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(8),
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsetsGeometry.only(
+            top: 8,
+            left: 8,
+            right: 8,
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  keyboardType: TextInputType.text,
+                  maxLines: null,
+                  autofocus: true,
+                  controller: textController,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Type a message',
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.all(8),
+                    hintStyle: TextStyle(color: Theme.of(context).hintColor),
+                  ),
                 ),
               ),
-            ),
-            TextButton(onPressed: () => submitMessage(), child: Text('Send')),
-          ],
+              TextButton(onPressed: () => submitMessage(), child: Text('Send')),
+            ],
+          ),
         ),
       ),
     );
@@ -151,6 +157,7 @@ class _MessageBarState extends State<MessageBar> {
 
 class ChatBubble extends StatelessWidget {
   final Message message;
+
   const ChatBubble({super.key, required this.message});
 
   @override
@@ -159,6 +166,7 @@ class ChatBubble extends StatelessWidget {
   }
 
   Widget buildUI(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     List<Widget> chatContents = [
       if (!message.isMine) UserAvatar(userID: message.profileID),
       SizedBox(width: 12),
@@ -167,15 +175,29 @@ class ChatBubble extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
             color: message.isMine
-                ? Colors.grey[300]
+                ? isDark
+                      ? Colors.blueGrey[700]
+                      : Colors.grey[300]
                 : Theme.of(context).primaryColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(message.content),
+          child: Text(
+            message.content,
+            style: TextStyle(
+              color: message.isMine
+                  ? isDark
+                        ? Colors.white
+                        : Colors.black
+                  : Colors.white,
+            ),
+          ),
         ),
       ),
       SizedBox(width: 12),
-      Text(format(message.createAt, locale: 'en_short')),
+      Text(
+        format(message.createAt, locale: 'en_short'),
+        style: TextStyle(color: Theme.of(context).hintColor, fontSize: 12),
+      ),
       SizedBox(width: 60),
     ];
     if (message.isMine) {

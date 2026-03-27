@@ -11,7 +11,7 @@ const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 
 const unexpectedErrorMessage = "Unexpected error occurred";
 
-final appTheme = ThemeData.light().copyWith(
+final lightTheme = ThemeData.light().copyWith(
   primaryColorDark: Colors.blueAccent,
   appBarTheme: AppBarTheme(
     elevation: 1,
@@ -43,13 +43,66 @@ final appTheme = ThemeData.light().copyWith(
   ),
 );
 
+final darkTheme = ThemeData.dark().copyWith(
+  scaffoldBackgroundColor: const Color(0xFF121212),
+
+  primaryColor: Colors.blueAccent,
+
+  appBarTheme: const AppBarTheme(
+    elevation: 0,
+    backgroundColor: Color(0xFF121212),
+    iconTheme: IconThemeData(color: Colors.white),
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+
+  cardTheme: CardThemeData(
+    color: const Color(0xFF1E1E1E),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(foregroundColor: Colors.blueAccent),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.blueAccent,
+    ),
+  ),
+
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: const Color(0xFF1E1E1E),
+    floatingLabelStyle: const TextStyle(color: Colors.blueAccent),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.grey, width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.white10, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+    ),
+  ),
+);
+
 extension ShowSnackBar on BuildContext {
   void showSnackBar({
     required String message,
     Color backgroundColor = Colors.green,
   }) {
     ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: backgroundColor,
+      ),
     );
   }
 
