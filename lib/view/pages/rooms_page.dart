@@ -2,6 +2,7 @@ import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/profile.dart';
+import 'package:chattify/services/notification_service.dart';
 import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,27 @@ class _RoomsPageState extends State<RoomsPage> {
   String searchQuery = "";
 
   @override
+  void initState() {
+    super.initState();
+
+    NotificationService.setNotificationTapCallback((roomID) async {
+      final profilesCubit = context.read<ProfilesCubit>();
+      final roomsCubit = context.read<RoomCubit>(); 
+
+      if (mounted) {
+        Navigator.of(context).push(
+          ChatPage.route(
+            roomID,
+            profilesCubit,
+            roomsCubit,
+          ), 
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
-    // TODO: implement dispose
     searchController.dispose();
     super.dispose();
   }
@@ -135,9 +155,12 @@ class _RoomsPageState extends State<RoomsPage> {
         final otherUser = profiles[room.otherUserID];
 
         return ListTile(
-          onTap: () => Navigator.of(
-            context,
-          ).push(ChatPage.route(room.id, profilesCubit)),
+          onTap: () {
+            final roomsCubit = context.read<RoomCubit>();
+            Navigator.of(
+              context,
+            ).push(ChatPage.route(room.id, profilesCubit, roomsCubit));
+          },
           leading: _ProfileAvatar(user: otherUser),
           title: Text(
             otherUser?.userName ?? "Loading ..",
@@ -219,9 +242,10 @@ class SearchResults extends StatelessWidget {
                 );
                 if (context.mounted) {
                   final profilesCubit = context.read<ProfilesCubit>();
+                  final roomsCubit = context.read<RoomCubit>();
                   Navigator.of(
                     context,
-                  ).push(ChatPage.route(roomID, profilesCubit));
+                  ).push(ChatPage.route(roomID, profilesCubit, roomsCubit));
                 }
               } catch (_) {
                 if (context.mounted) {

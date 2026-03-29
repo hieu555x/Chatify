@@ -1,10 +1,13 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/theme/theme_cubit.dart';
 import 'package:chattify/env.dart';
+import 'package:chattify/services/notification_service.dart';
 import 'package:chattify/view/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +19,10 @@ Future<void> main() async {
       authFlowType: AuthFlowType.pkce,
     ),
   );
+
+  await NotificationService().initialize();
+
+  NotificationService.setNavigatorKey(navigatorKey);
 
   runApp(BlocProvider(create: (context) => ThemeCubit(), child: const MyApp()));
 }
@@ -33,15 +40,10 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeMode,
+          navigatorKey: navigatorKey, 
           home: SplashPage(),
         );
       },
     );
-    //   MaterialApp(
-    //   debugShowCheckedModeBanner: false,
-    //   title: 'Flutter Demo',
-    //   theme: appTheme,
-    //   home: SplashPage(),
-    // );
   }
 }

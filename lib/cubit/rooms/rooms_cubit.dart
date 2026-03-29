@@ -5,6 +5,7 @@ import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/models/room.dart';
+import 'package:chattify/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,6 +17,8 @@ class RoomCubit extends Cubit<RoomState> {
   RoomCubit({required this.profilesCubit}) : super(RoomLoading());
 
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
+  final Set<String> _notifiedMessageIds = {};
+  final Set<String> _disabledNotificationRooms = {};  
 
   late final String myUserID;
 
@@ -98,6 +101,25 @@ class RoomCubit extends Cubit<RoomState> {
         )
         .listen((message) {
           final index = rooms.indexWhere((room) => room.id == roomID);
+
+          if (message != null &&
+              !message.isMine &&
+              !_notifiedMessageIds.contains(message.id) &&
+              !_disabledNotificationRooms.contains(roomID)) {
+            _notifiedMessageIds.add(message.id);
+
+            final room = rooms[index];
+            final senderProfile = profilesCubit.profiles[room.otherUserID];
+            final senderName = senderProfile?.userName ?? 'New Message';
+
+            NotificationService().showNotification(
+              title: senderName,
+              body: message.content,
+              roomID: roomID,
+              senderName: senderName,
+            );
+          }
+
           rooms[index] = rooms[index].copyWith(lastMessage: message);
           rooms.sort((a, b) {
             final aTimeStamp = a.lastMessage != null
@@ -125,6 +147,21 @@ class RoomCubit extends Cubit<RoomState> {
     return data as String;
   }
 
+  void pauseRoomNotifications(String roomID) {
+    _disabledNotificationRooms.add(roomID);
+    debugPrint('Paused notifications for room: $roomID');
+  }
+
+  void resumeRoomNotifications(String roomID) {
+    _disabledNotificationRooms.remove(roomID);
+    debugPrint('Resumed notifications for room: $roomID');
+  }
+
+  void clearRoomNotificationsHistory(String roomID) {
+    _notifiedMessageIds.clear();
+    debugPrint('Cleared notification history for room: $roomID');
+  }
+
   @override
   Future<void> close() {
     rawRoomsSubscription?.cancel();
@@ -132,6 +169,8 @@ class RoomCubit extends Cubit<RoomState> {
       subscription.cancel();
     }
     messageSubscriptions.clear();
+    _notifiedMessageIds.clear();
+    _disabledNotificationRooms.clear();  
     return super.close();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/chat/chat_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
+import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/view/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
@@ -10,16 +11,23 @@ import 'package:timeago/timeago.dart';
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
 
-  static Route<void> route(String roomID, ProfilesCubit profilesCubit) {
+  static Route<void> route(
+    String roomID,
+    ProfilesCubit profilesCubit,
+    RoomCubit roomsCubit, 
+  ) {
     return MaterialPageRoute(
       builder: (context) => MultiBlocProvider(
         providers: [
           BlocProvider<ProfilesCubit>.value(value: profilesCubit),
+          BlocProvider<RoomCubit>.value(
+            value: roomsCubit,
+          ), 
           BlocProvider<ChatCubit>(
             create: (context) => ChatCubit()..setMessageListener(roomID),
           ),
         ],
-        child: const ChatPage(),
+        child: ChatPageWrapper(roomID: roomID),
       ),
     );
   }
@@ -75,6 +83,48 @@ class ChatPage extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class ChatPageWrapper extends StatefulWidget {
+  final String roomID;
+
+  const ChatPageWrapper({super.key, required this.roomID});
+
+  @override
+  State<ChatPageWrapper> createState() => _ChatPageWrapperState();
+}
+
+class _ChatPageWrapperState extends State<ChatPageWrapper> {
+  late RoomCubit _roomsCubit;
+  @override
+  void initState() {
+    super.initState();
+
+    _roomsCubit = context.read<RoomCubit>();
+
+    try {
+      _roomsCubit.pauseRoomNotifications(widget.roomID);
+      debugPrint('✅ Paused notifications for room: ${widget.roomID}');
+    } catch (e) {
+      debugPrint('❌ Error pausing notifications: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    try {
+      _roomsCubit.resumeRoomNotifications(widget.roomID);
+      debugPrint('✅ Resumed notifications for room: ${widget.roomID}');
+    } catch (e) {
+      debugPrint('❌ Error resuming notifications: $e');
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const ChatPage();
   }
 }
 
