@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
@@ -11,8 +12,15 @@ const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 
 const unexpectedErrorMessage = "Unexpected error occurred";
 
+final buttonGradient = const LinearGradient(
+  colors: [Color(0xFF4A6592), Color(0xFF96B1E9)],
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+);
+
 final lightTheme = ThemeData.light().copyWith(
   primaryColorDark: Colors.blueAccent,
+  textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.light().textTheme),
   appBarTheme: AppBarTheme(
     elevation: 1,
     backgroundColor: Colors.white,
@@ -30,16 +38,13 @@ final lightTheme = ThemeData.light().copyWith(
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
-    floatingLabelStyle: TextStyle(color: Colors.blueAccent),
+    filled: true,
+    fillColor: const Color(0xFFF0F2F5),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.grey, width: 2),
+      borderRadius: BorderRadius.circular(30),
+      borderSide: BorderSide.none,
     ),
-    focusColor: Colors.blueAccent,
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 16),
   ),
 );
 
@@ -47,6 +52,8 @@ final darkTheme = ThemeData.dark().copyWith(
   scaffoldBackgroundColor: const Color(0xFF121212),
 
   primaryColor: Colors.blueAccent,
+
+  textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme),
 
   appBarTheme: const AppBarTheme(
     elevation: 0,
@@ -77,19 +84,11 @@ final darkTheme = ThemeData.dark().copyWith(
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: const Color(0xFF1E1E1E),
-    floatingLabelStyle: const TextStyle(color: Colors.blueAccent),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.grey, width: 1),
+      borderRadius: BorderRadius.circular(30),
+      borderSide: BorderSide.none,
     ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.white10, width: 1),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
-    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 16),
   ),
 );
 

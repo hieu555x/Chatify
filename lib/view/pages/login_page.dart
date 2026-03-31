@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/theme/theme_cubit.dart';
 import 'package:chattify/view/pages/register_page.dart';
 import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
@@ -77,35 +79,143 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget buildUI() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(title: Text('Sign In')),
-      body: ListView(
-        padding: formPadding,
-        children: [
-          TextFormField(
-            controller: emailController,
-            decoration: InputDecoration(labelText: 'Email'),
-            keyboardType: TextInputType.emailAddress,
-          ),
-          formSpacer,
-          TextFormField(
-            controller: passwordController,
-            decoration: InputDecoration(labelText: 'Password'),
-            obscureText: true,
-          ),
-          formSpacer,
-          ElevatedButton(
-            onPressed: isLoading ? null : signIn,
-            child: Text('Login'),
-          ),
-          formSpacer,
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).push(RegisterPage.route());
+      appBar: AppBar(
+        title: Text('Sign In'),
+        centerTitle: true,
+        actions: [
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              return IconButton(
+                onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              );
             },
-            child: Text('I am not have an account'),
           ),
         ],
+      ),
+      body: SingleChildScrollView(
+        padding: formPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 32),
+            CircleAvatar(
+              radius: 48,
+              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+              child: Icon(
+                Icons.chat_bubble,
+                size: 40,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            SizedBox(height: 40),
+            Text(
+              "Welcome Back",
+              style: TextStyle(
+                fontSize: 32,
+                color: isDark ? Colors.white : Colors.black,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Continue your story in the living journal",
+              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
+            formSpacer,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "EMAIL",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? Colors.grey : Colors.grey,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            TextFormField(
+              controller: emailController,
+              decoration: InputDecoration(hintText: 'your@email.com'),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            formSpacer,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "PASSWORD",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? Colors.grey : Colors.grey,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            TextFormField(
+              controller: passwordController,
+              decoration: InputDecoration(hintText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 40),
+            Container(
+              width: double.infinity,
+              height: 54,
+              decoration: BoxDecoration(
+                gradient: buttonGradient,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: isLoading ? null : signIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            formSpacer,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Don\'t have an account?',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(RegisterPage.route());
+                  },
+                  child: Text(
+                    'Sign up',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

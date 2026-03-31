@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeMode,
-          navigatorKey: navigatorKey, 
+          navigatorKey: navigatorKey,
           home: SplashPage(),
         );
       },

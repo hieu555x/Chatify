@@ -45,16 +45,12 @@ class _RoomsPageState extends State<RoomsPage> {
 
     NotificationService.setNotificationTapCallback((roomID) async {
       final profilesCubit = context.read<ProfilesCubit>();
-      final roomsCubit = context.read<RoomCubit>(); 
+      final roomsCubit = context.read<RoomCubit>();
 
       if (mounted) {
-        Navigator.of(context).push(
-          ChatPage.route(
-            roomID,
-            profilesCubit,
-            roomsCubit,
-          ), 
-        );
+        Navigator.of(
+          context,
+        ).push(ChatPage.route(roomID, profilesCubit, roomsCubit));
       }
     });
   }
@@ -74,6 +70,7 @@ class _RoomsPageState extends State<RoomsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Chatify"),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(ProfilePage.route()),
