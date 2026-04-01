@@ -7,6 +7,7 @@ import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:chattify/services/language/helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,32 +38,6 @@ class _LoginPageState extends State<LoginPage> {
       }
     });
     super.initState();
-  }
-
-  Future<void> signIn() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      if (emailController.text == "" || passwordController.text == "") {
-        throw Exception();
-      } else {
-        await supabase.auth.signInWithPassword(
-          email: emailController.text,
-          password: passwordController.text,
-        );
-      }
-    } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
-    } catch (_) {
-      context.showErrorSnackBar(message: unexpectedErrorMessage);
-    }
-
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   @override
@@ -112,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 40),
             Text(
-              "Welcome Back",
+              context.appStrings.welcomeBack,
               style: TextStyle(
                 fontSize: 32,
                 color: isDark ? Colors.white : Colors.black,
@@ -185,14 +160,16 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadiusGeometry.circular(30),
                   ),
                 ),
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
+                child: isLoading
+                    ? Center(child: preloader)
+                    : Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
             formSpacer,
@@ -218,5 +195,31 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> signIn() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      if (emailController.text == "" || passwordController.text == "") {
+        throw Exception();
+      } else {
+        await supabase.auth.signInWithPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+      }
+    } on AuthException catch (error) {
+      context.showErrorSnackBar(message: error.message);
+    } catch (_) {
+      context.showErrorSnackBar(message: unexpectedErrorMessage);
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

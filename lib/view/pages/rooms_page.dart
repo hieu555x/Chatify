@@ -67,6 +67,8 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Widget buildUI(BuildContext context) {
+    final currentUserId = supabase.auth.currentUser?.id;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Chatify"),
@@ -74,7 +76,7 @@ class _RoomsPageState extends State<RoomsPage> {
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(ProfilePage.route()),
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.person),
           ),
         ],
       ),

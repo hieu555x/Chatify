@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   final bool isRegistering;
+
   const RegisterPage({super.key, required this.isRegistering});
 
   @override
@@ -138,7 +139,9 @@ class _RegisterPageState extends State<RegisterPage> {
             formSpacer,
             TextButton(
               onPressed: () {
-                Navigator.of(context).push(LoginPage.route());
+                Navigator.of(
+                  context,
+                ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
               },
               child: Text('I already have an account'),
             ),

@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 final supabase = Supabase.instance.client;
 
-const preloader = Center(child: CircularProgressIndicator(color: Colors.white));
+const preloader = Center(child: CircularProgressIndicator());
 
 const formSpacer = SizedBox(height: 16, width: 16);
 
@@ -25,7 +25,11 @@ final lightTheme = ThemeData.light().copyWith(
     elevation: 1,
     backgroundColor: Colors.white,
     iconTheme: IconThemeData(color: Colors.black),
-    titleTextStyle: TextStyle(color: Colors.black, fontSize: 18),
+    titleTextStyle: TextStyle(
+      color: Colors.black,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
   ),
   primaryColor: Colors.blueAccent,
   textButtonTheme: TextButtonThemeData(

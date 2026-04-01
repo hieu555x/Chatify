@@ -1,8 +1,11 @@
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/language/local_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
+import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/widgets/adaptive_dialog.dart';
 import 'package:chattify/view/widgets/info_card.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return Scaffold(
             resizeToAvoidBottomInset: true,
             appBar: AppBar(
-              title: Text('Profile'),
+              title: Text(context.appStrings.profileText),
               actions: [
                 BlocBuilder<ThemeCubit, ThemeMode>(
                   builder: (context, mode) {
@@ -149,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      "Information",
+                                      context.appStrings.information,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -159,7 +162,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Divider(height: 1),
                                 InfoCard(
                                   icon: Icons.person,
-                                  label: "User Name",
+                                  label: context.appStrings.userName,
                                   value: currentProfile.userName,
                                 ),
                               ],
@@ -178,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      "Account setting",
+                                      context.appStrings.accountSetting,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -188,14 +191,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Divider(height: 1),
                                 InfoCard(
                                   icon: Icons.key,
-                                  label: "Change your password",
+                                  label: context.appStrings.changePasswordTitle,
                                   value: "",
                                   onTap: () async {
                                     final oldPassword =
                                         await showAdaptiveInputDialog(
                                           context,
-                                          "Enter your current password",
-                                          "Enter your current password",
+                                          context
+                                              .appStrings
+                                              .enterYourCurrentPassword,
+                                          context
+                                              .appStrings
+                                              .enterYourCurrentPassword,
                                           isPassword: true,
                                         );
 
@@ -207,8 +214,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                     final newPassword =
                                         await showAdaptiveInputDialog(
                                           context,
-                                          "Enter your new password",
-                                          "Enter your new password",
+                                          context
+                                              .appStrings
+                                              .enterYourNewPassword,
+                                          context
+                                              .appStrings
+                                              .enterYourNewPassword,
                                           isPassword: true,
                                         );
 
@@ -216,7 +227,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                         newPassword.isEmpty) {
                                       if (mounted) {
                                         context.showErrorSnackBar(
-                                          message: 'Vui lòng nhập password mới',
+                                          message: context
+                                              .appStrings
+                                              .enterYourNewPassword,
                                         );
                                       }
                                       return;
@@ -230,14 +243,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 InfoCard(
                                   icon: Icons.person,
-                                  label: "Change your user name",
+                                  label: context.appStrings.changeUsernameTitle,
                                   value: "",
                                   onTap: () async {
                                     final newUserName =
                                         await showAdaptiveInputDialog(
                                           context,
-                                          "Input your new user name",
-                                          "Input your new user name",
+                                          context
+                                              .appStrings
+                                              .enterYourNewUsername,
+                                          context
+                                              .appStrings
+                                              .enterYourNewUsername,
                                         );
 
                                     if (newUserName != null &&
@@ -249,10 +266,46 @@ class _ProfilePageState extends State<ProfilePage> {
                                     } else if (newUserName != null && mounted) {
                                       context.showErrorSnackBar(
                                         message:
-                                            'Please enter a valid user name',
+                                            context.appStrings.usernameUnvalid,
                                       );
                                     }
                                   },
+                                ),
+                              ],
+                            ),
+                          ),
+                          formSpacer,
+                          Card(
+                            elevation: 6,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsetsGeometry.all(16),
+                                  child: Align(
+                                    alignment: AlignmentGeometry.centerLeft,
+                                    child: Text(
+                                      context.appStrings.accountSetting,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Divider(height: 1),
+                                InfoCard(
+                                  icon: Icons.language,
+                                  label: context.appStrings.changeLanguage,
+                                  value:
+                                      Localizations.localeOf(
+                                            context,
+                                          ).languageCode ==
+                                          'vi'
+                                      ? "Tiếng việt"
+                                      : "English",
+                                  onTap: () => _showLanguagePicker(context),
                                 ),
                               ],
                             ),
@@ -270,13 +323,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 onPressed: () => _showLogoutDialog(context),
-                child: Text("Log out", style: TextStyle(color: Colors.white)),
+                child: Text(
+                  context.appStrings.logout,
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           );
         }
         return Scaffold(
-          appBar: AppBar(title: Text('Profile')),
+          appBar: AppBar(title: Text(context.appStrings.profileText)),
           body: Center(child: preloader),
         );
       },
@@ -294,11 +350,13 @@ class _ProfilePageState extends State<ProfilePage> {
       if (session != null && mounted) {
         context.read<ProfilesCubit>().clearProfile(session.id);
         await context.read<ProfilesCubit>().getProfile(session.id);
-        context.showSnackBar(message: 'Cập nhật tên người dùng thành công');
+        context.showSnackBar(message: context.appStrings.updateUserNameSuccess);
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackBar(message: 'Lỗi cập nhật: $e');
+        context.showErrorSnackBar(
+          message: '${context.appStrings.errorUpdateUserName}: $e',
+        );
       }
     }
   }
@@ -307,7 +365,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final email = supabase.auth.currentUser?.email;
       if (email == null) {
-        context.showErrorSnackBar(message: 'Không tìm thấy email');
+        context.showErrorSnackBar(message: context.appStrings.notFoundEmail);
         return;
       }
 
@@ -319,14 +377,18 @@ class _ProfilePageState extends State<ProfilePage> {
       await supabase.auth.updateUser(UserAttributes(password: newPassword));
 
       if (mounted) {
-        context.showSnackBar(message: 'Change the password success');
+        context.showSnackBar(message: context.appStrings.passwordUpdateSuccess);
       }
     } catch (e) {
       if (mounted) {
         if (e.toString().contains('Invalid login credentials')) {
-          context.showErrorSnackBar(message: 'Old password is incorrect');
+          context.showErrorSnackBar(
+            message: context.appStrings.oldPasswordInvalid,
+          );
         } else {
-          context.showErrorSnackBar(message: 'Error update password: $e');
+          context.showErrorSnackBar(
+            message: '${context.appStrings.errorPasswordUpdate} $e',
+          );
         }
       }
     }
@@ -371,11 +433,13 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) {
         context.read<ProfilesCubit>().clearProfile(userID);
         await context.read<ProfilesCubit>().getProfile(userID);
-        context.showSnackBar(message: 'Upload image success');
+        context.showSnackBar(message: context.appStrings.uploadImageSuccess);
       }
     } catch (e) {
       if (mounted) {
-        context.showErrorSnackBar(message: 'Error upload image: $e');
+        context.showErrorSnackBar(
+          message: '${context.appStrings.errorUploadImage} $e',
+        );
       }
     }
   }
@@ -387,12 +451,12 @@ class _ProfilePageState extends State<ProfilePage> {
         final platform = Theme.of(context).platform;
         if (platform == TargetPlatform.iOS) {
           return CupertinoAlertDialog(
-            title: Text("Logout"),
-            content: Text("Do you want to logout?"),
+            title: Text(context.appStrings.logoutTitle),
+            content: Text(context.appStrings.logoutContent),
             actions: [
               CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Cancel"),
+                child: Text(context.appStrings.exit),
               ),
               CupertinoDialogAction(
                 isDestructiveAction: true,
@@ -404,18 +468,18 @@ class _ProfilePageState extends State<ProfilePage> {
                     ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
                   }
                 },
-                child: Text("Confirm"),
+                child: Text(context.appStrings.confirm),
               ),
             ],
           );
         }
         return AlertDialog(
-          title: Text("Logout"),
-          content: Text("Do you want to logout?"),
+          title: Text(context.appStrings.logoutTitle),
+          content: Text(context.appStrings.logoutContent),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+              child: Text(context.appStrings.exit),
             ),
             TextButton(
               onPressed: () async {
@@ -426,9 +490,59 @@ class _ProfilePageState extends State<ProfilePage> {
                   ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
                 }
               },
-              child: Text("Confirm", style: TextStyle(color: Colors.red)),
+              child: Text(
+                context.appStrings.confirm,
+                style: TextStyle(color: Colors.red),
+              ),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 16),
+              Text(
+                context.appStrings.changeLanguageTitle,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                leading: CountryFlag.fromLanguageCode('en'),
+                title: Text("English"),
+                trailing: Localizations.localeOf(context).languageCode == 'en'
+                    ? Icon(Icons.check_circle, color: Colors.blue)
+                    : null,
+                onTap: () {
+                  context.read<LocaleCubit>().setLocale('en');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: CountryFlag.fromLanguageCode('vi'),
+                title: Text("Tiếng việt"),
+                trailing: Localizations.localeOf(context).languageCode == 'vi'
+                    ? Icon(Icons.check_circle, color: Colors.blue)
+                    : null,
+                onTap: () {
+                  context.read<LocaleCubit>().setLocale('vi');
+                  Navigator.pop(context);
+                },
+              ),
+              SizedBox(height: 16),
+            ],
+          ),
         );
       },
     );
