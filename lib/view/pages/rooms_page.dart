@@ -2,6 +2,7 @@ import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/profile.dart';
+import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/services/notification_service.dart';
 import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/profile_page.dart';
@@ -67,11 +68,9 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Widget buildUI(BuildContext context) {
-    final currentUserId = supabase.auth.currentUser?.id;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chatify"),
+        title: Text(context.appStrings.appName),
         centerTitle: true,
         actions: [
           IconButton(
@@ -102,7 +101,7 @@ class _RoomsPageState extends State<RoomsPage> {
                   controller: searchController,
                   onChanged: (value) => setState(() => searchQuery = value),
                   decoration: InputDecoration(
-                    hintText: "Search user ...",
+                    hintText: context.appStrings.searchUserText,
                     prefixIcon: Icon(Icons.search),
                     filled: true,
                     fillColor: Theme.of(context).brightness == Brightness.light
@@ -128,9 +127,7 @@ class _RoomsPageState extends State<RoomsPage> {
               if (searchQuery.isEmpty)
                 Expanded(
                   child: state is RoomEmpty
-                      ? Center(
-                          child: Text("Search for someone to start chatting!"),
-                        )
+                      ? Center(child: Text(context.appStrings.roomDescription))
                       : buildRoomList(context, state),
                 ),
             ],
@@ -149,6 +146,7 @@ class _RoomsPageState extends State<RoomsPage> {
 
     return ListView.builder(
       itemCount: rooms.length,
+      cacheExtent: 500,
       itemBuilder: (context, index) {
         final room = rooms[index];
         final otherUser = profiles[room.otherUserID];
@@ -162,15 +160,19 @@ class _RoomsPageState extends State<RoomsPage> {
           },
           leading: _ProfileAvatar(user: otherUser),
           title: Text(
-            otherUser?.userName ?? "Loading ..",
+            otherUser?.userName ?? context.appStrings.loading,
             style: TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             format(
               room.lastMessage?.createAt ?? room.createdAt,
-              locale: 'en_short',
+              locale: context.appStrings.timezone,
             ),
             style: Theme.of(context).textTheme.bodySmall,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         );
       },
@@ -187,7 +189,14 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (user == null) {
-      return CircleAvatar(radius: radius, child: preloader);
+      return CircleAvatar(
+        radius: radius,
+        child: SizedBox(
+          width: radius * 1.5,
+          height: radius * 1.5,
+          child: preloader,
+        ),
+      );
     }
 
     final hasImage =
@@ -198,7 +207,8 @@ class _ProfileAvatar extends StatelessWidget {
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
       backgroundImage: hasImage ? NetworkImage(user!.profileImage) : null,
       onBackgroundImageError: hasImage
-          ? (exception, stackTrace) => debugPrint("Avatar error: $exception")
+          ? (exception, stackTrace) =>
+                debugPrint("${context.appStrings.errorAvatar} $exception")
           : null,
       child: !hasImage
           ? Text(
@@ -223,7 +233,7 @@ class SearchResults extends StatelessWidget {
     if (users.isEmpty) {
       return Padding(
         padding: EdgeInsetsGeometry.all(16),
-        child: Text("No users found"),
+        child: Text(context.appStrings.noUser),
       );
     }
     return Expanded(
@@ -249,7 +259,7 @@ class SearchResults extends StatelessWidget {
               } catch (_) {
                 if (context.mounted) {
                   context.showErrorSnackBar(
-                    message: "Failed creating a new room",
+                    message: context.appStrings.errorCreateRoom,
                   );
                 }
               }

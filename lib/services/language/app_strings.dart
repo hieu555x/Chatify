@@ -1,5 +1,5 @@
 abstract class AppStrings {
-  String get chatify;
+  String get appName;
 
   String get searchUser;
 
@@ -62,4 +62,18 @@ abstract class AppStrings {
   String get errorUploadImage;
 
   String get changeLanguageTitle;
+
+  String get loading;
+
+  String get timezone;
+
+  String get searchUserText;
+
+  String get roomDescription;
+
+  String get errorAvatar;
+
+  String get noUser;
+
+  String get errorCreateRoom;
 }

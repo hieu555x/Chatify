@@ -18,7 +18,7 @@ class RoomCubit extends Cubit<RoomState> {
 
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
   final Set<String> _notifiedMessageIds = {};
-  final Set<String> _disabledNotificationRooms = {};  
+  final Set<String> _disabledNotificationRooms = {};
 
   late final String myUserID;
 
@@ -68,9 +68,16 @@ class RoomCubit extends Cubit<RoomState> {
                 .map(Room.fromRoomParticipants)
                 .where((room) => room.otherUserID != myUserID)
                 .toList();
+
+            final userIDsToFetch = rooms
+                .map((room) => room.otherUserID)
+                .toList();
+            if (userIDsToFetch.isNotEmpty) {
+              await profilesCubit.getProfiles(userIDsToFetch);
+            }
+
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
-              profilesCubit.getProfile(room.otherUserID);
             }
             if (!isClosed) {
               emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
@@ -92,7 +99,7 @@ class RoomCubit extends Cubit<RoomState> {
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('room_id', roomID)
-        .order('created_at')
+        .order('created_at', ascending: false)
         .limit(1)
         .map<Message?>(
           (data) => data.isEmpty
@@ -101,6 +108,8 @@ class RoomCubit extends Cubit<RoomState> {
         )
         .listen((message) {
           final index = rooms.indexWhere((room) => room.id == roomID);
+
+          if (index == -1) return;
 
           if (message != null &&
               !message.isMine &&
@@ -170,7 +179,7 @@ class RoomCubit extends Cubit<RoomState> {
     }
     messageSubscriptions.clear();
     _notifiedMessageIds.clear();
-    _disabledNotificationRooms.clear();  
+    _disabledNotificationRooms.clear();
     return super.close();
   }
 }
