@@ -3,7 +3,7 @@ import 'package:chattify/cubit/chat/chat_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/models/message.dart';
-import 'package:chattify/view/widgets/user_avatar.dart';
+import 'package:chattify/view/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
@@ -243,7 +243,11 @@ class ChatBubble extends StatelessWidget {
   Widget buildUI(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     List<Widget> chatContents = [
-      if (!message.isMine) UserAvatar(userID: message.profileID),
+      if (!message.isMine)
+        ProfileAvatar(
+          user: context.read<ProfilesCubit>().profiles[message.profileID],
+        ),
+      // UserAvatar(userID: message.profileID),
       SizedBox(width: 12),
       Flexible(
         child: Container(

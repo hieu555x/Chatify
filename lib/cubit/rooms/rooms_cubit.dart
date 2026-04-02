@@ -5,7 +5,6 @@ import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/models/room.dart';
-import 'package:chattify/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,8 +16,6 @@ class RoomCubit extends Cubit<RoomState> {
   RoomCubit({required this.profilesCubit}) : super(RoomLoading());
 
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
-  final Set<String> _notifiedMessageIds = {};
-  final Set<String> _disabledNotificationRooms = {};
 
   String myUserID = "";
 
@@ -34,8 +31,6 @@ class RoomCubit extends Cubit<RoomState> {
     haveCalledGetRooms = true;
 
     myUserID = supabase.auth.currentUser!.id;
-
-    if (myUserID == null) return;
 
     List data;
 
@@ -75,7 +70,7 @@ class RoomCubit extends Cubit<RoomState> {
                 .toList();
 
             final ortherUserID = rooms.map((r) => r.otherUserID).toList();
-            profilesCubit.getProfiles(ortherUserID);
+            await profilesCubit.getProfiles(ortherUserID);
 
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
@@ -105,30 +100,12 @@ class RoomCubit extends Cubit<RoomState> {
         .map<Message?>(
           (data) => data.isEmpty
               ? null
-              : Message.fromMap(map: data.first, myUserID: myUserID!),
+              : Message.fromMap(map: data.first, myUserID: myUserID),
         )
         .listen((message) {
           final index = rooms.indexWhere((room) => room.id == roomID);
 
           if (index == -1) return;
-
-          if (message != null &&
-              !message.isMine &&
-              !_notifiedMessageIds.contains(message.id) &&
-              !_disabledNotificationRooms.contains(roomID)) {
-            _notifiedMessageIds.add(message.id);
-
-            final room = rooms[index];
-            final senderProfile = profilesCubit.profiles[room.otherUserID];
-            final senderName = senderProfile?.userName ?? 'New Message';
-
-            NotificationService().showNotification(
-              title: senderName,
-              body: message.content,
-              roomID: roomID,
-              senderName: senderName,
-            );
-          }
 
           rooms[index] = rooms[index].copyWith(lastMessage: message);
           rooms.sort((a, b) {
@@ -170,20 +147,11 @@ class RoomCubit extends Cubit<RoomState> {
     await initializeRooms(context);
   }
 
-  void pauseRoomNotifications(String roomID) {
-    _disabledNotificationRooms.add(roomID);
-    debugPrint('Paused notifications for room: $roomID');
-  }
+  void pauseRoomNotifications(String roomID) {}
 
-  void resumeRoomNotifications(String roomID) {
-    _disabledNotificationRooms.remove(roomID);
-    debugPrint('Resumed notifications for room: $roomID');
-  }
+  void resumeRoomNotifications(String roomID) {}
 
-  void clearRoomNotificationsHistory(String roomID) {
-    _notifiedMessageIds.clear();
-    debugPrint('Cleared notification history for room: $roomID');
-  }
+  void clearRoomNotificationsHistory(String roomID) {}
 
   @override
   Future<void> close() {
@@ -192,8 +160,6 @@ class RoomCubit extends Cubit<RoomState> {
       subscription.cancel();
     }
     messageSubscriptions.clear();
-    _notifiedMessageIds.clear();
-    _disabledNotificationRooms.clear();
     return super.close();
   }
 }

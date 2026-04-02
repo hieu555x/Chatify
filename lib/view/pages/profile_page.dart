@@ -24,15 +24,7 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 
   static Route<void> route() {
-    final profileCubit = ProfilesCubit();
-    return MaterialPageRoute(
-      builder: (context) {
-        return MultiBlocProvider(
-          providers: [BlocProvider<ProfilesCubit>(create: (_) => profileCubit)],
-          child: ProfilePage(),
-        );
-      },
-    );
+    return MaterialPageRoute(builder: (context) => const ProfilePage());
   }
 }
 

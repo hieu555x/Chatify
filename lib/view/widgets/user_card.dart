@@ -5,7 +5,7 @@ class UserCard extends StatelessWidget {
   final String userTitle;
   final String lastMessage;
   final String lastTime;
-  final Function onTap;
+  final GestureTapCallback onTap;
   const UserCard({
     super.key,
     required this.avatarIcon,
@@ -17,15 +17,15 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onTap,
-      child: SizedBox(
-        width: double.infinity,
-        height: 80,
+    return SizedBox(
+      width: double.infinity,
+      height: 80,
+      child: InkWell(
+        onTap: onTap,
         child: Row(
           children: [
             avatarIcon,
-            SizedBox(width: 4),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -37,15 +37,21 @@ class UserCard extends StatelessWidget {
                     children: [
                       Align(
                         alignment: AlignmentGeometry.centerLeft,
-                        child: Text("data"),
+                        child: Text(
+                          userTitle,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                       Align(
                         alignment: AlignmentGeometry.centerRight,
-                        child: Text("data"),
+                        child: Text(lastTime),
                       ),
                     ],
                   ),
-                  Text("data"),
+                  Text(lastMessage),
                 ],
               ),
             ),

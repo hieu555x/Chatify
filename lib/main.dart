@@ -1,13 +1,13 @@
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/language/local_cubit.dart';
+import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/theme/theme_cubit.dart';
 import 'package:chattify/env.dart';
-import 'package:chattify/services/notification_service.dart';
 import 'package:chattify/view/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -22,10 +22,6 @@ Future<void> main() async {
     ),
   );
 
-  await NotificationService().initialize();
-
-  NotificationService.setNavigatorKey(navigatorKey);
-
   runApp(const MyApp());
 }
 
@@ -38,6 +34,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
         BlocProvider<LocaleCubit>(create: (context) => LocaleCubit()),
+        BlocProvider<ProfilesCubit>(create: (context) => ProfilesCubit()),
       ],
       child: BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
