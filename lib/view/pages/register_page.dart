@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:chattify/constant.dart';
+import 'package:chattify/cubit/theme/theme_cubit.dart';
+import 'package:chattify/env.dart';
+import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -67,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
         email: email,
         password: password,
         data: {'username': username},
-        emailRedirectTo: 'io.supabase.chat://login',
+        emailRedirectTo: SUPABASE_LOGIN_URL,
       );
       context.showErrorSnackBar(
         message: 'Please check your inbox for confirmation email.',
@@ -86,66 +90,170 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget buildUI() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(
+        title: Text(context.appStrings.registerTitle),
+        actions: [
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              return IconButton(
+                onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              );
+            },
+          ),
+        ],
+      ),
       body: Form(
         key: formKey,
-        child: ListView(
+        child: SingleChildScrollView(
           padding: formPadding,
-          children: [
-            TextFormField(
-              controller: emailController,
-              decoration: InputDecoration(label: Text('Email')),
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return 'Required';
-                }
-                return null;
-              },
-              keyboardType: TextInputType.emailAddress,
-            ),
-            formSpacer,
-            TextFormField(
-              controller: usernameController,
-              decoration: InputDecoration(label: Text('User name')),
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return 'Required';
-                }
-                final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
-                if (!isValid) {
-                  return '3-24 long with alphanumeric or underscore';
-                }
-                return null;
-              },
-            ),
-            formSpacer,
-            TextFormField(
-              controller: passwordController,
-              decoration: InputDecoration(label: Text('Password')),
-              obscureText: true,
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return 'Required';
-                }
-                return null;
-              },
-            ),
-            formSpacer,
-            ElevatedButton(
-              onPressed: isLoading ? null : signUp,
-              child: Text('Register'),
-            ),
-            formSpacer,
-            TextButton(
-              onPressed: () {
-                Navigator.of(
+          child: Column(
+            children: [
+              SizedBox(height: 32),
+              CircleAvatar(
+                radius: 48,
+                backgroundColor: Theme.of(
                   context,
-                ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
-              },
-              child: Text('I already have an account'),
-            ),
-          ],
+                ).primaryColor.withOpacity(0.1),
+                child: Icon(
+                  Icons.people_sharp,
+                  size: 40,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              SizedBox(height: 40),
+              Text(
+                context.appStrings.registerTitle,
+                style: TextStyle(
+                  fontSize: 32,
+                  color: isDark ? Colors.white : Colors.black,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              Text(context.appStrings.registerDescription),
+              SizedBox(height: 40),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "EMAIL",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? Colors.grey : Colors.grey,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(hint: Text('your@email.com')),
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Required';
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.emailAddress,
+              ),
+              formSpacer,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "USER NAME",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? Colors.grey : Colors.grey,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: usernameController,
+                decoration: InputDecoration(hint: Text('User name')),
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Required';
+                  }
+                  final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
+                  if (!isValid) {
+                    return '3-24 long with alphanumeric or underscore';
+                  }
+                  return null;
+                },
+              ),
+              formSpacer,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "PASSWORD",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? Colors.grey : Colors.grey,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              TextFormField(
+                controller: passwordController,
+                decoration: InputDecoration(hint: Text('Password')),
+                obscureText: true,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 40),
+              Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: buttonGradient,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : signUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(32),
+                    ),
+                  ),
+                  child: isLoading
+                      ? preloader
+                      : Text(
+                          "Register",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+              formSpacer,
+              TextButton(
+                onPressed: () {
+                  Navigator.of(
+                    context,
+                  ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+                },
+                child: Text('I already have an account'),
+              ),
+            ],
+          ),
         ),
       ),
     );

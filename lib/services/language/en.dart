@@ -127,7 +127,7 @@ class EnString implements AppStrings {
   @override
   // TODO: implement uploadImageSuccess
   String get uploadImageSuccess => 'Update image success';
-  
+
   @override
   // TODO: implement loading
   String get loading => 'Loading ...';
@@ -155,4 +155,12 @@ class EnString implements AppStrings {
   @override
   // TODO: implement errorAvatar
   String get errorCreateRoom => 'Failed creating a new room';
+
+  @override
+  // TODO: implement registerTitle
+  String get registerTitle => 'Register new account';
+
+  @override
+  String get registerDescription =>
+      "Let start your journey of connection today!";
 }

@@ -39,54 +39,61 @@ class ChatPage extends StatelessWidget {
   }
 
   Widget buildUI(BuildContext context) {
-    final profile = context.read<ProfilesCubit>().profiles[otherUserID];
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(profile?.userName ?? "Chat"),
-        centerTitle: true,
-      ),
-      body: BlocConsumer<ChatCubit, ChatState>(
-        listener: (context, state) {
-          if (state is ChatError) {
-            context.showErrorSnackBar(message: state.message);
-          }
-        },
-        builder: (context, state) {
-          if (state is ChatInitial) {
-            return preloader;
-          } else if (state is ChatLoaded) {
-            final messages = state.messages;
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    reverse: true,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      return ChatBubble(message: message);
-                    },
-                  ),
-                ),
-                MessageBar(),
-              ],
-            );
-          } else if (state is ChatEmpty) {
-            return Column(
-              children: [
-                Expanded(
-                  child: Center(child: Text('Start your conversation now ')),
-                ),
-                MessageBar(),
-              ],
-            );
-          } else if (state is ChatError) {
-            return Center(child: Text(state.message));
-          }
-          throw UnimplementedError();
-        },
-      ),
+    return BlocBuilder<ProfilesCubit, ProfilesState>(
+      builder: (context, profileState) {
+        final profile = context.read<ProfilesCubit>().profiles[otherUserID];
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(profile?.userName ?? "Chat"),
+            centerTitle: true,
+          ),
+          body: BlocConsumer<ChatCubit, ChatState>(
+            listener: (context, state) {
+              if (state is ChatError) {
+                context.showErrorSnackBar(message: state.message);
+              }
+            },
+            builder: (context, state) {
+              if (state is ChatInitial) {
+                return preloader;
+              } else if (state is ChatLoaded) {
+                final messages = state.messages;
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        reverse: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final message = messages[index];
+                          return ChatBubble(message: message);
+                        },
+                      ),
+                    ),
+                    MessageBar(),
+                  ],
+                );
+              } else if (state is ChatEmpty) {
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text('Start your conversation now '),
+                      ),
+                    ),
+                    MessageBar(),
+                  ],
+                );
+              } else if (state is ChatError) {
+                return Center(child: Text(state.message));
+              }
+              throw UnimplementedError();
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -107,12 +114,19 @@ class ChatPageWrapper extends StatefulWidget {
 
 class _ChatPageWrapperState extends State<ChatPageWrapper> {
   late RoomCubit _roomsCubit;
+  late ProfilesCubit _profilesCubit;
 
   @override
   void initState() {
     super.initState();
 
     _roomsCubit = context.read<RoomCubit>();
+    _profilesCubit = context.read<ProfilesCubit>();
+
+    if (!_profilesCubit.profiles.containsKey(widget.otherUserID)) {
+      debugPrint('📥 Loading profile for user: ${widget.otherUserID}');
+      _profilesCubit.getProfile(widget.otherUserID);
+    }
 
     try {
       _roomsCubit.pauseRoomNotifications(widget.roomID);

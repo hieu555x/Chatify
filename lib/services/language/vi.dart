@@ -146,4 +146,12 @@ class ViStrings implements AppStrings {
 
   @override
   String get errorCreateRoom => 'Lỗi khi tạo room mới';
+
+  @override
+  // TODO: implement registerTitle
+  String get registerTitle => 'Đăng ký tài khoản mới';
+
+  @override
+  String get registerDescription =>
+      "Bắt đầu hành trình kết nối của bạn ngay hôm nay!";
 }

@@ -6,6 +6,8 @@ import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/services/notification_service.dart';
 import 'package:chattify/view/pages/chat_page.dart';
 import 'package:chattify/view/pages/profile_page.dart';
+import 'package:chattify/view/widgets/gradient_text.dart';
+import 'package:chattify/view/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
@@ -70,9 +72,15 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Widget buildUI(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.appStrings.appName),
+        backgroundColor: isDark ? Colors.black : Colors.white,
+        title: GradientText(
+          text: context.appStrings.appName,
+          textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -83,7 +91,7 @@ class _RoomsPageState extends State<RoomsPage> {
       ),
       body: BlocBuilder<RoomCubit, RoomState>(
         builder: (context, state) {
-          if (state is RoomLoading) preloader;
+          if (state is RoomLoading) return preloader;
 
           List<Profile> allUsers = [];
           if (state is RoomLoaded) allUsers = state.newUsers;
@@ -95,46 +103,59 @@ class _RoomsPageState extends State<RoomsPage> {
             );
           }).toList();
 
-          return Column(
-            children: [
-              Padding(
-                padding: EdgeInsetsGeometry.all(16),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: (value) => setState(() => searchQuery = value),
-                  decoration: InputDecoration(
-                    hintText: "Search user ...",
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.light
-                        ? Colors.grey[200]
-                        : Colors.grey[800],
-                    suffixIcon: searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              searchController.clear();
-                              setState(() => searchQuery = "");
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsetsGeometry.all(16),
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (value) => setState(() => searchQuery = value),
+                    decoration: InputDecoration(
+                      hintText: "Search user ...",
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey[200]
+                          : Colors.grey[800],
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                searchController.clear();
+                                setState(() => searchQuery = "");
+                              },
+                            )
+                          : null,
                     ),
                   ),
                 ),
-              ),
-              if (searchQuery.isNotEmpty) SearchResults(users: filteredUsers),
-              if (searchQuery.isEmpty)
-                Expanded(
-                  child: state is RoomEmpty
-                      ? Center(
-                          child: Text("Search for someone to start chatting!"),
-                        )
-                      : buildRoomList(context, state),
+                Align(
+                  alignment: AlignmentGeometry.centerLeft,
+                  child: GradientText(
+                    text: context.appStrings.welcomeBack,
+                    textStyle: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
-            ],
+                SizedBox(height: 24),
+                if (searchQuery.isNotEmpty) SearchResults(users: filteredUsers),
+                if (searchQuery.isEmpty)
+                  Expanded(
+                    child: state is RoomEmpty
+                        ? Center(
+                            child: Text(
+                              "Search for someone to start chatting!",
+                            ),
+                          )
+                        : buildRoomList(context, state),
+                  ),
+              ],
+            ),
           );
         },
       ),
@@ -148,41 +169,26 @@ class _RoomsPageState extends State<RoomsPage> {
     final profilesCubit = context.read<ProfilesCubit>();
     final profiles = profilesCubit.profiles;
 
-    return ListView.builder(
-      itemCount: rooms.length,
-      cacheExtent: 500,
-      itemBuilder: (context, index) {
-        final room = rooms[index];
-        final otherUser = profiles[room.otherUserID];
+    return BlocBuilder<ProfilesCubit, ProfilesState>(
+      builder: (context, profileState) {
+        final profiles = (profileState is ProfilesLoaded)
+            ? profileState.profiles
+            : {};
+        return ListView.builder(
+          itemCount: rooms.length,
+          cacheExtent: 500,
+          itemBuilder: (context, index) {
+            final room = rooms[index];
+            final otherUser = profiles[room.otherUserID];
 
-        return ListTile(
-          onTap: () {
-            final roomsCubit = context.read<RoomCubit>();
-            Navigator.of(context).push(
-              ChatPage.route(
-                room.id,
-                room.otherUserID,
-                profilesCubit,
-                roomsCubit,
-              ),
+            return UserCard(
+              avatarIcon: _ProfileAvatar(user: otherUser),
+              userTitle: otherUser?.userName ?? context.appStrings.loading,
+              lastMessage: "lastMessage",
+              lastTime: format(room.lastMessage?.createAt ?? room.createdAt),
+              onTap: () {},
             );
           },
-          leading: _ProfileAvatar(user: otherUser),
-          title: Text(
-            otherUser?.userName ?? context.appStrings.loading,
-            style: TextStyle(fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            format(
-              room.lastMessage?.createAt ?? room.createdAt,
-              locale: context.appStrings.timezone,
-            ),
-            style: Theme.of(context).textTheme.bodySmall,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
         );
       },
     );

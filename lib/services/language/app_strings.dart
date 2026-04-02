@@ -76,4 +76,8 @@ abstract class AppStrings {
   String get noUser;
 
   String get errorCreateRoom;
+
+  String get registerTitle;
+
+  String get registerDescription;
 }

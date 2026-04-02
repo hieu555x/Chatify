@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/language/local_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/view/pages/login_page.dart';
 import 'package:chattify/view/widgets/adaptive_dialog.dart';
+import 'package:chattify/view/widgets/gradient_text.dart';
 import 'package:chattify/view/widgets/info_card.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
 
 import '../../cubit/theme/theme_cubit.dart';
 
@@ -62,7 +64,10 @@ class _ProfilePageState extends State<ProfilePage> {
           return Scaffold(
             resizeToAvoidBottomInset: true,
             appBar: AppBar(
-              title: Text(context.appStrings.profileText),
+              title: GradientText(
+                text: context.appStrings.profileText,
+                textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              ),
               actions: [
                 BlocBuilder<ThemeCubit, ThemeMode>(
                   builder: (context, mode) {
@@ -105,12 +110,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                       backgroundImage: NetworkImage(
                                         currentProfile.profileImage,
                                       ),
-                                      child: Text(
-                                        currentProfile.userName
-                                            .substring(0, 2)
-                                            .toUpperCase(),
-                                        style: TextStyle(fontSize: 32),
-                                      ),
                                     ),
                               Positioned(
                                 bottom: 0,
@@ -132,11 +131,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                           SizedBox(height: 20),
-                          Text(
-                            currentProfile.userName,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                          GradientText(
+                            text: currentProfile.userName,
+                            textStyle: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                           formSpacer,

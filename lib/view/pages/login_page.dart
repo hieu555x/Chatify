@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/theme/theme_cubit.dart';
+import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/view/pages/register_page.dart';
 import 'package:chattify/view/pages/rooms_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:chattify/services/language/helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -142,11 +142,11 @@ class _LoginPageState extends State<LoginPage> {
               height: 54,
               decoration: BoxDecoration(
                 gradient: buttonGradient,
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
+                    blurRadius: 12,
                     offset: Offset(0, 4),
                   ),
                 ],
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(30),
+                    borderRadius: BorderRadiusGeometry.circular(32),
                   ),
                 ),
                 child: isLoading

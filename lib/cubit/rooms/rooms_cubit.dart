@@ -73,6 +73,10 @@ class RoomCubit extends Cubit<RoomState> {
                 .map(Room.fromRoomParticipants)
                 .where((room) => room.otherUserID != myUserID)
                 .toList();
+
+            final ortherUserID = rooms.map((r) => r.otherUserID).toList();
+            profilesCubit.getProfiles(ortherUserID);
+
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
             }

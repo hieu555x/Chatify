@@ -12,16 +12,30 @@ class ProfilesCubit extends Cubit<ProfilesState> {
   final Set<String> _loadingProfileIds = {};
 
   Future<void> getProfile(String userID) async {
-    if (profiles.containsKey(userID)) return;
+    if (profiles.containsKey(userID)) {
+      debugPrint('✅ Profile cached for user: $userID');
+      return;
+    }
 
-    if (_loadingProfileIds.contains(userID)) return;
+    if (_loadingProfileIds.contains(userID)) {
+      debugPrint('⏳ Profile already loading for user: $userID');
+      return;
+    }
+
     _loadingProfileIds.add(userID);
+    debugPrint('🔄 Fetching profile for user: $userID');
 
     try {
       final data = await supabase.from('profiles').select().match({
         'id': userID,
       }).single();
+
       profiles[userID] = Profile.fromMap(data);
+      emit(ProfilesLoaded(profiles: profiles));
+      debugPrint('✅ Profile loaded for user: $userID');
+    } catch (e) {
+      debugPrint('❌ Error fetching profile: $e');
+      profiles[userID] = null;
       emit(ProfilesLoaded(profiles: profiles));
     } finally {
       _loadingProfileIds.remove(userID);
@@ -33,7 +47,12 @@ class ProfilesCubit extends Cubit<ProfilesState> {
         .where((id) => !profiles.containsKey(id))
         .toList();
 
-    if (idsToFetch.isEmpty) return;
+    if (idsToFetch.isEmpty) {
+      debugPrint('✅ All profiles already cached');
+      return;
+    }
+
+    debugPrint('🔄 Batch fetching ${idsToFetch.length} profiles');
 
     try {
       final data = await supabase
@@ -45,9 +64,17 @@ class ProfilesCubit extends Cubit<ProfilesState> {
         final profile = Profile.fromMap(row);
         profiles[profile.id] = profile;
       }
+
+      for (var id in idsToFetch) {
+        if (!profiles.containsKey(id)) {
+          profiles[id] = null;
+        }
+      }
+
       emit(ProfilesLoaded(profiles: profiles));
+      debugPrint('✅ Batch loaded ${data.length} profiles');
     } catch (e) {
-      debugPrint('Error fetching profiles: $e');
+      debugPrint('❌ Error fetching profiles batch: $e');
     }
   }
 
