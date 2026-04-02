@@ -18,11 +18,11 @@ class RoomCubit extends Cubit<RoomState> {
 
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
   final Set<String> _notifiedMessageIds = {};
-  final Set<String> _disabledNotificationRooms = {};  
+  final Set<String> _disabledNotificationRooms = {};
 
-  late final String myUserID;
+  String myUserID = "";
 
-  late final List<Profile> newUsers;
+  List<Profile> newUsers = [];
 
   List<Room> rooms = [];
   StreamSubscription<List<Map<String, dynamic>>>? rawRoomsSubscription;
@@ -35,7 +35,9 @@ class RoomCubit extends Cubit<RoomState> {
 
     myUserID = supabase.auth.currentUser!.id;
 
-    late final List data;
+    if (myUserID == null) return;
+
+    List data;
 
     try {
       data = await supabase
@@ -44,6 +46,9 @@ class RoomCubit extends Cubit<RoomState> {
           .not('id', 'eq', myUserID)
           .order('created_at')
           .limit(12);
+
+      final rows = List<Map<String, dynamic>>.from(data);
+      newUsers = rows.map(Profile.fromMap).toList();
     } catch (e) {
       emit(RoomError('Error loading new users ${e.toString()}'));
       return;
@@ -68,6 +73,7 @@ class RoomCubit extends Cubit<RoomState> {
                 .map(Room.fromRoomParticipants)
                 .where((room) => room.otherUserID != myUserID)
                 .toList();
+
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
               profilesCubit.getProfile(room.otherUserID);
@@ -92,12 +98,12 @@ class RoomCubit extends Cubit<RoomState> {
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('room_id', roomID)
-        .order('created_at')
+        .order('created_at', ascending: false)
         .limit(1)
         .map<Message?>(
           (data) => data.isEmpty
               ? null
-              : Message.fromMap(map: data.first, myUserID: myUserID),
+              : Message.fromMap(map: data.first, myUserID: myUserID!),
         )
         .listen((message) {
           final index = rooms.indexWhere((room) => room.id == roomID);
@@ -147,6 +153,19 @@ class RoomCubit extends Cubit<RoomState> {
     return data as String;
   }
 
+  Future<void> refreshRooms(BuildContext context) async {
+    await rawRoomsSubscription?.cancel();
+    for (final sub in messageSubscriptions.values) {
+      sub.cancel();
+    }
+
+    messageSubscriptions.clear();
+
+    haveCalledGetRooms = false;
+
+    await initializeRooms(context);
+  }
+
   void pauseRoomNotifications(String roomID) {
     _disabledNotificationRooms.add(roomID);
     debugPrint('Paused notifications for room: $roomID');
@@ -170,7 +189,7 @@ class RoomCubit extends Cubit<RoomState> {
     }
     messageSubscriptions.clear();
     _notifiedMessageIds.clear();
-    _disabledNotificationRooms.clear();  
+    _disabledNotificationRooms.clear();
     return super.close();
   }
 }

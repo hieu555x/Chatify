@@ -2,7 +2,7 @@ import 'app_strings.dart';
 
 class ViStrings implements AppStrings {
   @override
-  final String chatify = "Chatify";
+  final String appName = "Chatify";
 
   @override
   final String searchUser = "Tìm người dùng ...";
@@ -121,4 +121,29 @@ class ViStrings implements AppStrings {
   @override
   // TODO: implement uploadImageSuccess
   String get uploadImageSuccess => 'Tải lên hình ảnh thành công';
+
+  @override
+  // TODO: implement loading
+  String get loading => 'Đang load ...';
+
+  @override
+  // TODO: implement timezone
+  String get timezone => 'vn_short';
+
+  @override
+  // TODO: implement searchUserText
+  String get searchUserText => 'Tìm kiếm người dùng ...';
+
+  @override
+  // TODO: implement roomDescription
+  String get roomDescription => 'Tìm kiếm ai đó để bắt đầu trò chuyện nào!';
+
+  @override
+  String get errorAvatar => 'Lỗi khi loading avatar người dùng: ';
+
+  @override
+  String get noUser => 'Không tìm thấy người dùng nào';
+
+  @override
+  String get errorCreateRoom => 'Lỗi khi tạo room mới';
 }

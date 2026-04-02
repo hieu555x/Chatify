@@ -9,25 +9,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
 
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  final String otherUserID;
+
+  const ChatPage({super.key, required this.otherUserID});
 
   static Route<void> route(
     String roomID,
+    String otherUserID,
     ProfilesCubit profilesCubit,
-    RoomCubit roomsCubit, 
+    RoomCubit roomsCubit,
   ) {
     return MaterialPageRoute(
       builder: (context) => MultiBlocProvider(
         providers: [
           BlocProvider<ProfilesCubit>.value(value: profilesCubit),
-          BlocProvider<RoomCubit>.value(
-            value: roomsCubit,
-          ), 
+          BlocProvider<RoomCubit>.value(value: roomsCubit),
           BlocProvider<ChatCubit>(
             create: (context) => ChatCubit()..setMessageListener(roomID),
           ),
         ],
-        child: ChatPageWrapper(roomID: roomID),
+        child: ChatPageWrapper(roomID: roomID, otherUserID: otherUserID),
       ),
     );
   }
@@ -38,8 +39,12 @@ class ChatPage extends StatelessWidget {
   }
 
   Widget buildUI(BuildContext context) {
+    final profile = context.read<ProfilesCubit>().profiles[otherUserID];
     return Scaffold(
-      appBar: AppBar(title: Text("Chat"), centerTitle: true),
+      appBar: AppBar(
+        title: Text(profile?.userName ?? "Chat"),
+        centerTitle: true,
+      ),
       body: BlocConsumer<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {
@@ -88,8 +93,13 @@ class ChatPage extends StatelessWidget {
 
 class ChatPageWrapper extends StatefulWidget {
   final String roomID;
+  final String otherUserID;
 
-  const ChatPageWrapper({super.key, required this.roomID});
+  const ChatPageWrapper({
+    super.key,
+    required this.roomID,
+    required this.otherUserID,
+  });
 
   @override
   State<ChatPageWrapper> createState() => _ChatPageWrapperState();
@@ -97,6 +107,7 @@ class ChatPageWrapper extends StatefulWidget {
 
 class _ChatPageWrapperState extends State<ChatPageWrapper> {
   late RoomCubit _roomsCubit;
+
   @override
   void initState() {
     super.initState();
@@ -124,7 +135,7 @@ class _ChatPageWrapperState extends State<ChatPageWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return const ChatPage();
+    return ChatPage(otherUserID: widget.otherUserID);
   }
 }
 

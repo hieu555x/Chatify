@@ -3,7 +3,7 @@ import 'package:chattify/services/language/app_strings.dart';
 class EnString implements AppStrings {
   @override
   // TODO: implement chatify
-  final String chatify = "Chatify";
+  final String appName = "Chatify";
 
   @override
   // TODO: implement noUserFound
@@ -127,4 +127,32 @@ class EnString implements AppStrings {
   @override
   // TODO: implement uploadImageSuccess
   String get uploadImageSuccess => 'Update image success';
+  
+  @override
+  // TODO: implement loading
+  String get loading => 'Loading ...';
+
+  @override
+  // TODO: implement timezone
+  String get timezone => 'en_short';
+
+  @override
+  // TODO: implement searchUserText
+  String get searchUserText => 'Search user ...';
+
+  @override
+  // TODO: implement roomDescription
+  String get roomDescription => 'Search for someone to start chatting!';
+
+  @override
+  // TODO: implement errorAvatar
+  String get errorAvatar => 'Error loading avatar: ';
+
+  @override
+  // TODO: implement errorAvatar
+  String get noUser => 'No users found';
+
+  @override
+  // TODO: implement errorAvatar
+  String get errorCreateRoom => 'Failed creating a new room';
 }

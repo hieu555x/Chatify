@@ -9,6 +9,7 @@ class ProfilesCubit extends Cubit<ProfilesState> {
   ProfilesCubit() : super(ProfilesLoaded(profiles: {}));
 
   final Map<String, Profile?> profiles = {};
+  final Set<String> _loadingProfileIds = {};
 
   Future<void> getProfile(String userID) async {
     final data = await supabase.from('profiles').select().match({
@@ -20,5 +21,11 @@ class ProfilesCubit extends Cubit<ProfilesState> {
 
   void clearProfile(String userID) {
     profiles.remove(userID);
+  }
+
+  void clearAllProfiles() {
+    profiles.clear();
+    _loadingProfileIds.clear();
+    emit(ProfilesLoaded(profiles: {}));
   }
 }
