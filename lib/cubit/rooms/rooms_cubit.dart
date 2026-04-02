@@ -73,10 +73,8 @@ class RoomCubit extends Cubit<RoomState> {
                 .map(Room.fromRoomParticipants)
                 .where((room) => room.otherUserID != myUserID)
                 .toList();
-
             for (final room in rooms) {
               getNewestMessage(context: context, roomID: room.id);
-              profilesCubit.getProfile(room.otherUserID);
             }
             if (!isClosed) {
               emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
@@ -107,6 +105,8 @@ class RoomCubit extends Cubit<RoomState> {
         )
         .listen((message) {
           final index = rooms.indexWhere((room) => room.id == roomID);
+
+          if (index == -1) return;
 
           if (message != null &&
               !message.isMine &&

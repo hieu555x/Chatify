@@ -95,59 +95,46 @@ class _RoomsPageState extends State<RoomsPage> {
             );
           }).toList();
 
-          return RefreshIndicator(
-            onRefresh: () => context.read<RoomCubit>().refreshRooms(context),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: TextField(
-                    controller: searchController,
-                    onChanged: (value) => setState(() => searchQuery = value),
-                    decoration: InputDecoration(
-                      hintText: context.appStrings.searchUserText,
-                      prefixIcon: Icon(Icons.search),
-                      filled: true,
-                      fillColor:
-                          Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey[200]
-                          : Colors.grey[800],
-                      suffixIcon: searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () {
-                                searchController.clear();
-                                setState(() => searchQuery = "");
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsetsGeometry.all(16),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) => setState(() => searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: "Search user ...",
+                    prefixIcon: Icon(Icons.search),
+                    filled: true,
+                    fillColor: Theme.of(context).brightness == Brightness.light
+                        ? Colors.grey[200]
+                        : Colors.grey[800],
+                    suffixIcon: searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              searchController.clear();
+                              setState(() => searchQuery = "");
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
-                if (searchQuery.isNotEmpty) SearchResults(users: filteredUsers),
-                if (searchQuery.isEmpty)
-                  Expanded(
-                    child: state is RoomEmpty
-                        ? ListView(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.3,
-                              ),
-                              Center(
-                                child: Text(context.appStrings.roomDescription),
-                              ),
-                            ],
-                          )
-                        : buildRoomList(context, state),
-                  ),
-              ],
-            ),
+              ),
+              if (searchQuery.isNotEmpty) SearchResults(users: filteredUsers),
+              if (searchQuery.isEmpty)
+                Expanded(
+                  child: state is RoomEmpty
+                      ? Center(
+                          child: Text("Search for someone to start chatting!"),
+                        )
+                      : buildRoomList(context, state),
+                ),
+            ],
           );
         },
       ),
