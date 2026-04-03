@@ -155,12 +155,13 @@ class _RoomsPageState extends State<RoomsPage> {
                           maxWidth: MediaQuery.of(context).size.width * 0.8,
                         ),
                         child: GradientText(
-                          text: context.appStrings.welcomeBack,
+                          text:
+                              "${context.appStrings.welcomeBack}, ${profileState is ProfilesLoaded ? profileState.profiles[currentUserID]?.userName : ""}",
                           textStyle: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.w900,
                           ),
-                          maxLines: 2,
+                          maxLines: 3,
                         ),
                       ),
                     ),
