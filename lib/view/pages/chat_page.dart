@@ -2,11 +2,10 @@ import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/chat/chat_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
-import 'package:chattify/models/message.dart';
-import 'package:chattify/view/widgets/profile_avatar.dart';
+import 'package:chattify/services/language/helper.dart';
+import 'package:chattify/view/pages/chat_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:timeago/timeago.dart';
 
 class ChatPage extends StatelessWidget {
   final String otherUserID;
@@ -80,7 +79,7 @@ class ChatPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Center(
-                        child: Text('Start your conversation now '),
+                        child: Text(context.appStrings.chatDescription),
                       ),
                     ),
                     MessageBar(),
@@ -194,24 +193,34 @@ class _MessageBarState extends State<MessageBar> {
           child: Row(
             children: [
               Expanded(
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  maxLines: null,
-                  autofocus: true,
-                  controller: textController,
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Type a message',
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.all(8),
-                    hintStyle: TextStyle(color: Theme.of(context).hintColor),
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      hintText: context.appStrings.typeAMessage,
+                      filled: true,
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey[200]
+                          : Colors.grey[800],
+                    ),
                   ),
                 ),
               ),
-              TextButton(onPressed: () => submitMessage(), child: Text('Send')),
+              Padding(
+                padding: EdgeInsetsGeometry.all(8),
+                child: InkWell(
+                  onTap: submitMessage,
+                  borderRadius: BorderRadius.circular(26),
+                  child: ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return buttonGradient(context).createShader(bounds);
+                    },
+                    child: Icon(Icons.send, size: 36, color: Colors.white),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -222,74 +231,10 @@ class _MessageBarState extends State<MessageBar> {
   void submitMessage() async {
     final text = textController.text;
     if (text.isEmpty) {
-      context.showErrorSnackBar(message: 'Please type a message');
+      context.showErrorSnackBar(message: context.appStrings.typeAMessage);
       return;
     }
     BlocProvider.of<ChatCubit>(context).sendMessage(text);
     textController.clear();
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  final Message message;
-
-  const ChatBubble({super.key, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return buildUI(context);
-  }
-
-  Widget buildUI(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    List<Widget> chatContents = [
-      if (!message.isMine)
-        ProfileAvatar(
-          user: context.read<ProfilesCubit>().profiles[message.profileID],
-        ),
-      // UserAvatar(userID: message.profileID),
-      SizedBox(width: 12),
-      Flexible(
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-            color: message.isMine
-                ? isDark
-                      ? Colors.blueGrey[700]
-                      : Colors.grey[300]
-                : Theme.of(context).primaryColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            message.content,
-            style: TextStyle(
-              color: message.isMine
-                  ? isDark
-                        ? Colors.white
-                        : Colors.black
-                  : Colors.white,
-            ),
-          ),
-        ),
-      ),
-      SizedBox(width: 12),
-      Text(
-        format(message.createAt, locale: 'en_short'),
-        style: TextStyle(color: Theme.of(context).hintColor, fontSize: 12),
-      ),
-      SizedBox(width: 60),
-    ];
-    if (message.isMine) {
-      chatContents = chatContents.reversed.toList();
-    }
-    return Padding(
-      padding: EdgeInsetsGeometry.symmetric(horizontal: 8, vertical: 18),
-      child: Row(
-        mainAxisAlignment: message.isMine
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        children: chatContents,
-      ),
-    );
   }
 }

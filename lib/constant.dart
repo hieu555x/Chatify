@@ -12,10 +12,15 @@ const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 
 const unexpectedErrorMessage = "Unexpected error occurred";
 
-final buttonGradient = const LinearGradient(
-  colors: [Color(0xFF4A6592), Color(0xFF96B1E9)],
-  begin: Alignment.centerLeft,
-  end: Alignment.centerRight,
+LinearGradient buttonGradient(BuildContext context) => LinearGradient(
+  colors: [
+    Colors.blue.shade400,
+    Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : Colors.blueGrey,
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
 );
 
 final lightTheme = ThemeData.light().copyWith(
@@ -111,5 +116,9 @@ extension ShowSnackBar on BuildContext {
 
   void showErrorSnackBar({required String message}) {
     showSnackBar(message: message, backgroundColor: Colors.red);
+  }
+
+  void showSuccessSnackBar({required String message}) {
+    showSuccessSnackBar(message: message);
   }
 }

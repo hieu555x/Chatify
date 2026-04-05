@@ -212,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 width: double.infinity,
                 height: 54,
                 decoration: BoxDecoration(
-                  gradient: buttonGradient,
+                  gradient: buttonGradient(context),
                   borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
@@ -234,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: isLoading
                       ? preloader
                       : Text(
-                          "Register",
+                          context.appStrings.register,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -250,7 +250,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     context,
                   ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
                 },
-                child: Text('I already have an account'),
+                child: Text(context.appStrings.haveAccount),
               ),
             ],
           ),

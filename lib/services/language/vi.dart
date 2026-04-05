@@ -154,4 +154,29 @@ class ViStrings implements AppStrings {
   @override
   String get registerDescription =>
       "Bắt đầu hành trình kết nối của bạn ngay hôm nay!";
+
+  @override
+  String get chatDescription => "Bắt đầu cuộc trò chuyện ngay bây giờ !";
+
+  @override
+  String get typeAMessage => 'Gõ tin nhắn';
+
+  @override
+  String get sendMessage => 'Gửi';
+
+  @override
+  // TODO: implement haveAccount
+  String get haveAccount => 'Tôi đã có sẵn tài khoản';
+
+  @override
+  // TODO: implement login
+  String get login => 'Đăng nhập';
+
+  @override
+  // TODO: implement notHaveAccount
+  String get notHaveAccount => 'Tôi không có tài khoản?';
+
+  @override
+  // TODO: implement register
+  String get register => "Đăng ký";
 }

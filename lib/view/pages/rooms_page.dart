@@ -8,6 +8,7 @@ import 'package:chattify/view/pages/profile_page.dart';
 import 'package:chattify/view/widgets/gradient_text.dart';
 import 'package:chattify/view/widgets/profile_avatar.dart';
 import 'package:chattify/view/widgets/user_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';

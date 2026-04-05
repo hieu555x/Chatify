@@ -129,3 +129,7 @@ GEMINI.md
 /android
 android/gradle.properties
 android/gradle/wrapper/gradle-wrapper.properties
+env.dart
+GEMINI.md
+*.md
+*.sql

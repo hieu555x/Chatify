@@ -52,6 +52,8 @@ class RoomCubit extends Cubit<RoomState> {
     final rows = List<Map<String, dynamic>>.from(data);
     newUsers = rows.map(Profile.fromMap).toList();
 
+    rooms.clear();
+
     rawRoomsSubscription = supabase
         .from('room_participants')
         .stream(primaryKey: ['room_id', 'profile_id'])
@@ -64,16 +66,43 @@ class RoomCubit extends Cubit<RoomState> {
               return;
             }
 
-            rooms = participantsMaps
-                .map(Room.fromRoomParticipants)
-                .where((room) => room.otherUserID != myUserID)
+            final Map<String, List<Map<String, dynamic>>> roomGroups = {};
+            for (final map in participantsMaps) {
+              final roomId = map['room_id'] as String;
+              roomGroups.putIfAbsent(roomId, () => []).add(map);
+            }
+
+            rooms = roomGroups.values
+                .where((group) => group.any((p) => p['profile_id'] == myUserID))
+                .map((group) {
+                  final otherProfile = group.firstWhere(
+                    (p) => p['profile_id'] != myUserID,
+                    orElse: () => group.first,
+                  );
+                  return Room(
+                    id: group.first['room_id'],
+                    otherUserID: otherProfile['profile_id'],
+                    createdAt: DateTime.parse(group.first['created_at']),
+                    lastMessage: null,
+                  );
+                })
                 .toList();
+
+            final Map<String, Room> roomMap = {};
+            for (final room in rooms) {
+              if (!roomMap.containsKey(room.id)) {
+                roomMap[room.id] = room;
+              }
+            }
+            rooms = roomMap.values.toList();
 
             final ortherUserID = rooms.map((r) => r.otherUserID).toList();
             await profilesCubit.getProfiles(ortherUserID);
 
             for (final room in rooms) {
-              getNewestMessage(context: context, roomID: room.id);
+              if (!messageSubscriptions.containsKey(room.id)) {
+                getNewestMessage(context: context, roomID: room.id);
+              }
             }
             if (!isClosed) {
               emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
@@ -91,6 +120,10 @@ class RoomCubit extends Cubit<RoomState> {
     required BuildContext context,
     required String roomID,
   }) {
+    if (!rooms.any((room) => room.id == roomID)) {
+      return;
+    }
+
     messageSubscriptions[roomID] = supabase
         .from('messages')
         .stream(primaryKey: ['id'])

@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign In'),
+        title: Text(context.appStrings.login),
         centerTitle: true,
         actions: [
           BlocBuilder<ThemeCubit, ThemeMode>(
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 8),
             Text(
-              "Continue your story in the living journal",
+              context.appStrings.registerDescription,
               style: TextStyle(color: isDark ? Colors.white : Colors.black),
             ),
             formSpacer,
@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 54,
               decoration: BoxDecoration(
-                gradient: buttonGradient,
+                gradient: buttonGradient(context),
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
@@ -163,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: isLoading
                     ? Center(child: preloader)
                     : Text(
-                        'Login',
+                        context.appStrings.login,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -177,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Don\'t have an account?',
+                  context.appStrings.notHaveAccount,
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
                 TextButton(
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                     Navigator.of(context).push(RegisterPage.route());
                   },
                   child: Text(
-                    'Sign up',
+                    context.appStrings.register,
                     style: TextStyle(fontWeight: FontWeight.w900),
                   ),
                 ),

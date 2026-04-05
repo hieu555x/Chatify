@@ -163,4 +163,29 @@ class EnString implements AppStrings {
   @override
   String get registerDescription =>
       "Let start your journey of connection today!";
+
+  @override
+  String get chatDescription => "Start your conversation now";
+
+  @override
+  String get typeAMessage => 'Type a message';
+
+  @override
+  String get sendMessage => 'Send';
+  
+  @override
+  // TODO: implement haveAccount
+  String get haveAccount => 'I already have an account';
+  
+  @override
+  // TODO: implement login
+  String get login => 'Login';
+  
+  @override
+  // TODO: implement notHaveAccount
+  String get notHaveAccount => 'Don\'t have account?';
+  
+  @override
+  // TODO: implement register
+  String get register => "Register";
 }

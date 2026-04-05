@@ -80,4 +80,18 @@ abstract class AppStrings {
   String get registerTitle;
 
   String get registerDescription;
+
+  String get chatDescription;
+
+  String get typeAMessage;
+
+  String get sendMessage;
+
+  String get login;
+
+  String get register;
+
+  String get notHaveAccount;
+
+  String get haveAccount;
 }
