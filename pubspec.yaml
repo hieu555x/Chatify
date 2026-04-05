@@ -48,6 +48,7 @@ dependencies:
   flutter_local_notifications: ^17.1.2
   google_fonts: ^8.0.2
   country_flags: ^4.1.2
+  flutter_launcher_icons: ^0.14.4
 #  flutter_localization: ^0.4.0
 
 dev_dependencies:
