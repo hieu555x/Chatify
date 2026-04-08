@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:chattify/constant.dart';
 import 'package:flutter/material.dart';
 
 class GradientText extends StatelessWidget {
@@ -18,16 +19,7 @@ class GradientText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultGradient = LinearGradient(
-      colors: [
-        Colors.blue.shade400,
-        Theme.of(context).brightness == Brightness.dark
-            ? Colors.white
-            : Colors.blueGrey,
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
+    final defaultGradient = buttonGradient(context);
     return ShaderMask(
       shaderCallback: (bounds) =>
           (gradient ?? defaultGradient).createShader(bounds),

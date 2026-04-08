@@ -1,3 +1,5 @@
+import 'package:chattify/services/language/helper.dart';
+import 'package:chattify/view/widgets/gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,13 +28,16 @@ Future<String?> showAdaptiveInputDialog(
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: TextStyle(color: Colors.red)),
+            child: Text(
+              context.appStrings.exit,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
           CupertinoDialogAction(
             onPressed: () {
               Navigator.pop(context, controller.text);
             },
-            child: Text("Confirm"),
+            child: Text(context.appStrings.confirm),
           ),
         ],
       ),
@@ -48,15 +53,15 @@ Future<String?> showAdaptiveInputDialog(
           obscureText: isPassword,
         ),
         actions: [
-          TextButton(
+          GradientButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: TextStyle(color: Colors.red)),
+            isCancel: true,
+            text: context.appStrings.exit,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context, controller.text);
-            },
-            child: Text("Confirm"),
+          GradientButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            isCancel: false,
+            text: context.appStrings.confirm,
           ),
         ],
       ),

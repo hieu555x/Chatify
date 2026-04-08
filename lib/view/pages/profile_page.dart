@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            elevation: 6,
+                            elevation: 1.5,
                             child: Column(
                               children: [
                                 Padding(
@@ -161,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           formSpacer,
                           Card(
-                            elevation: 6,
+                            elevation: 1.5,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -267,7 +267,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           formSpacer,
                           Card(
-                            elevation: 6,
+                            elevation: 1.5,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -510,7 +510,13 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               SizedBox(height: 16),
               ListTile(
-                leading: CountryFlag.fromLanguageCode('en'),
+                leading: ClipOval(
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CountryFlag.fromLanguageCode('en'),
+                  ),
+                ),
                 title: Text("English"),
                 trailing: Localizations.localeOf(context).languageCode == 'en'
                     ? Icon(Icons.check_circle, color: Colors.blue)
@@ -521,7 +527,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               ListTile(
-                leading: CountryFlag.fromLanguageCode('vi'),
+                leading: ClipOval(
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CountryFlag.fromLanguageCode('vi'),
+                  ),
+                ),
                 title: Text("Tiếng việt"),
                 trailing: Localizations.localeOf(context).languageCode == 'vi'
                     ? Icon(Icons.check_circle, color: Colors.blue)

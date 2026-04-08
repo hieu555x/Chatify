@@ -14,10 +14,10 @@ const unexpectedErrorMessage = "Unexpected error occurred";
 
 LinearGradient buttonGradient(BuildContext context) => LinearGradient(
   colors: [
-    Colors.blue.shade400,
+    Colors.blue.shade900,
     Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.blueGrey,
+        ? Colors.blue.shade400
+        : Colors.blueAccent,
   ],
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
