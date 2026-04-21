@@ -1,3 +1,4 @@
+import 'package:amicons/amicons.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
@@ -20,7 +21,11 @@ class InfoCard extends StatelessWidget {
       title: Text(label),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [Text(value), SizedBox(width: 8), Icon(Icons.chevron_right)],
+        children: [
+          Text(value),
+          SizedBox(width: 8),
+          Icon(Amicons.lucide_arrow_right),
+        ],
       ),
       onTap: onTap,
     );

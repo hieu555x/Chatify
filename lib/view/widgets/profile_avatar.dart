@@ -1,3 +1,4 @@
+import 'package:amicons/amicons.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/services/language/helper.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class ProfileAvatar extends StatelessWidget {
         child: SizedBox(
           width: radius * 1.5,
           height: radius * 1.5,
-          child: Icon(Icons.person),
+          child: Icon(Amicons.lucide_circle_user_round),
         ),
       );
     }

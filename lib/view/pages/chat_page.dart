@@ -1,9 +1,11 @@
+import 'package:amicons/amicons.dart';
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/chat/chat_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
 import 'package:chattify/services/language/helper.dart';
 import 'package:chattify/view/pages/chat_bubble.dart';
+import 'package:chattify/view/widgets/gradient_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,7 +46,10 @@ class ChatPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(profile?.userName ?? "Chat"),
+            title: GradientText(
+              text: profile!.userName,
+              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+            ),
             centerTitle: true,
           ),
           body: BlocConsumer<ChatCubit, ChatState>(
@@ -217,7 +222,11 @@ class _MessageBarState extends State<MessageBar> {
                     shaderCallback: (Rect bounds) {
                       return buttonGradient(context).createShader(bounds);
                     },
-                    child: Icon(Icons.send, size: 36, color: Colors.white),
+                    child: Icon(
+                      Amicons.iconly_send_curved_fill,
+                      size: 36,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:amicons/amicons.dart';
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/theme/theme_cubit.dart';
 import 'package:chattify/services/language/helper.dart';
@@ -64,7 +65,9 @@ class _LoginPageState extends State<LoginPage> {
             builder: (context, themeMode) {
               return IconButton(
                 onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+                icon: Icon(
+                  isDark ? Amicons.remix_sun_fill : Amicons.remix_moon_fill,
+                ),
               );
             },
           ),
@@ -80,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
               radius: 48,
               backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
               child: Icon(
-                Icons.chat_bubble,
+                Amicons.remix_chat3,
                 size: 40,
                 color: Theme.of(context).primaryColor,
               ),

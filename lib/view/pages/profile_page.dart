@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:amicons/amicons.dart';
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/language/local_cubit.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
@@ -67,8 +68,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () => context.read<ThemeCubit>().toggleTheme(),
                       icon: Icon(
                         mode == ThemeMode.light
-                            ? Icons.dark_mode
-                            : Icons.light_mode,
+                            ? Amicons.remix_moon_fill
+                            : Amicons.remix_sun_fill,
                       ),
                     );
                   },
@@ -114,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     radius: 16,
                                     backgroundColor: Colors.blue,
                                     child: Icon(
-                                      Icons.camera_alt,
+                                      Amicons.lucide_aperture,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -152,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 Divider(height: 1),
                                 InfoCard(
-                                  icon: Icons.person,
+                                  icon: Amicons.lucide_circle_user_round,
                                   label: context.appStrings.userName,
                                   value: currentProfile.userName,
                                 ),
@@ -181,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 Divider(height: 1),
                                 InfoCard(
-                                  icon: Icons.key,
+                                  icon: Amicons.lucide_rectangle_ellucidepsis,
                                   label: context.appStrings.changePasswordTitle,
                                   value: "",
                                   onTap: () async {
@@ -233,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   },
                                 ),
                                 InfoCard(
-                                  icon: Icons.person,
+                                  icon: Amicons.lucide_user_round_pen,
                                   label: context.appStrings.changeUsernameTitle,
                                   value: "",
                                   onTap: () async {
@@ -287,7 +288,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 Divider(height: 1),
                                 InfoCard(
-                                  icon: Icons.language,
+                                  icon: Amicons.lucide_languages,
                                   label: context.appStrings.changeLanguage,
                                   value:
                                       Localizations.localeOf(
@@ -519,7 +520,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 title: Text("English"),
                 trailing: Localizations.localeOf(context).languageCode == 'en'
-                    ? Icon(Icons.check_circle, color: Colors.blue)
+                    ? Icon(Amicons.lucide_check, color: Colors.blue)
                     : null,
                 onTap: () {
                   context.read<LocaleCubit>().setLocale('en');
@@ -536,7 +537,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 title: Text("Tiếng việt"),
                 trailing: Localizations.localeOf(context).languageCode == 'vi'
-                    ? Icon(Icons.check_circle, color: Colors.blue)
+                    ? Icon(Amicons.lucide_check, color: Colors.blue)
                     : null,
                 onTap: () {
                   context.read<LocaleCubit>().setLocale('vi');

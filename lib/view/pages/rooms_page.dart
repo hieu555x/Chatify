@@ -1,3 +1,4 @@
+import 'package:amicons/amicons.dart';
 import 'package:chattify/constant.dart';
 import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/cubit/rooms/rooms_cubit.dart';
@@ -98,7 +99,7 @@ class _RoomsPageState extends State<RoomsPage> {
                 onPressed: () =>
                     Navigator.of(context).push(ProfilePage.route()),
                 icon: profileState is ProfilesInitial
-                    ? Icon(Icons.person)
+                    ? Icon(Amicons.lucide_circle_user_round)
                     : ProfileAvatar(user: currentProfile),
               ),
             ],
@@ -129,8 +130,8 @@ class _RoomsPageState extends State<RoomsPage> {
                         onChanged: (value) =>
                             setState(() => searchQuery = value),
                         decoration: InputDecoration(
-                          hintText: "Search user ...",
-                          prefixIcon: Icon(Icons.search),
+                          hintText: context.appStrings.searchUser,
+                          prefixIcon: Icon(Amicons.lucide_user_search),
                           filled: true,
                           fillColor:
                               Theme.of(context).brightness == Brightness.light
@@ -138,7 +139,7 @@ class _RoomsPageState extends State<RoomsPage> {
                               : Colors.grey[800],
                           suffixIcon: searchQuery.isNotEmpty
                               ? IconButton(
-                                  icon: Icon(Icons.close),
+                                  icon: Icon(Amicons.lucide_circle_x),
                                   onPressed: () {
                                     searchController.clear();
                                     setState(() => searchQuery = "");
@@ -172,9 +173,7 @@ class _RoomsPageState extends State<RoomsPage> {
                       Expanded(
                         child: state is RoomEmpty
                             ? Center(
-                                child: Text(
-                                  "Search for someone to start chatting!",
-                                ),
+                                child: Text(context.appStrings.startChatting),
                               )
                             : buildRoomList(context, state),
                       ),
