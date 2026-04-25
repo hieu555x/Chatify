@@ -133,3 +133,5 @@ env.dart
 GEMINI.md
 *.md
 *.sql
+/.claude
+/.continue

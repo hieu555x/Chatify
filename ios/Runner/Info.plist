@@ -45,6 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>This app needs notification permissions to alert you when you receive new messages.</string>
 
 	<key>CFBundleURLTypes</key>
   <array>

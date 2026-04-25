@@ -19,18 +19,13 @@ class RoomsPage extends StatefulWidget {
   static Route<void> route() {
     return MaterialPageRoute(
       builder: (context) {
-        // ✅ Sử dụng ProfilesCubit global thay vì tạo mới
-        final profilesCubit = context.read<ProfilesCubit>();
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider<RoomCubit>(
-              create: (_) =>
-                  RoomCubit(profilesCubit: profilesCubit)
-                    ..initializeRooms(context),
-            ),
-          ],
-          child: const RoomsPage(),
-        );
+        // ✅ Sử dụng RoomCubit global thay vì tạo mới
+        final roomsCubit = context.read<RoomCubit>();
+        // Chỉ khởi tạo rooms nếu chưa được khởi tạo
+        if (roomsCubit.state is RoomLoading) {
+          roomsCubit.initializeRooms(context);
+        }
+        return const RoomsPage();
       },
     );
   }

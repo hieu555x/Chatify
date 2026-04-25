@@ -5,6 +5,7 @@ import 'package:chattify/cubit/profile/profiles_cubit.dart';
 import 'package:chattify/models/message.dart';
 import 'package:chattify/models/profile.dart';
 import 'package:chattify/models/room.dart';
+import 'package:chattify/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +19,7 @@ class RoomCubit extends Cubit<RoomState> {
   final Map<String, StreamSubscription<Message?>> messageSubscriptions = {};
 
   String myUserID = "";
+  String? currentActiveRoomId; // Track the currently active room
 
   List<Profile> newUsers = [];
 
@@ -136,6 +138,11 @@ class RoomCubit extends Cubit<RoomState> {
               : Message.fromMap(map: data.first, myUserID: myUserID),
         )
         .listen((message) {
+          if (message != null && !message.isMine && roomID != currentActiveRoomId) {
+            // Show notification for new messages from other users when not in the active room
+            _showNewMessageNotification(message, roomID);
+          }
+
           final index = rooms.indexWhere((room) => room.id == roomID);
 
           if (index == -1) return;
@@ -154,6 +161,43 @@ class RoomCubit extends Cubit<RoomState> {
             emit(RoomLoaded(rooms: rooms, newUsers: newUsers));
           }
         });
+  }
+
+  Future<void> _showNewMessageNotification(Message message, String roomId) async {
+    try {
+      final notificationService = NotificationService();
+      final isEnabled = await notificationService.areNotificationsEnabled();
+
+      if (isEnabled) {
+        // Get the other user's name for the notification title
+        final room = rooms.firstWhere((r) => r.id == roomId);
+
+        String username = 'Unknown User';
+        if (profilesCubit.state is ProfilesLoaded) {
+          final profilesState = profilesCubit.state as ProfilesLoaded;
+          final otherProfile = profilesState.profiles[room.otherUserID];
+          if (otherProfile != null) {
+            username = otherProfile.userName;
+          }
+        }
+
+        // Create payload with room information for navigation
+        final payload = 'room:$roomId|user:${room.otherUserID}';
+
+        await notificationService.showNewMessageNotification(
+          title: username,
+          body: message.content,
+          roomId: roomId,
+          payload: payload,
+        );
+      }
+    } catch (e) {
+      // Silently fail if notification can't be shown
+    }
+  }
+
+  void setActiveRoom(String? roomId) {
+    currentActiveRoomId = roomId;
   }
 
   Future<String> createRoom(String otherUserID) async {
@@ -180,9 +224,15 @@ class RoomCubit extends Cubit<RoomState> {
     await initializeRooms(context);
   }
 
-  void pauseRoomNotifications(String roomID) {}
+  void pauseRoomNotifications(String roomID) {
+    currentActiveRoomId = roomID;
+  }
 
-  void resumeRoomNotifications(String roomID) {}
+  void resumeRoomNotifications(String roomID) {
+    if (currentActiveRoomId == roomID) {
+      currentActiveRoomId = null;
+    }
+  }
 
   void clearRoomNotificationsHistory(String roomID) {}
 
